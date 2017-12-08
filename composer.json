@@ -1,0 +1,34 @@
+{
+    "name": "codename/core-io",
+    "description": "This is going to be the core input and output lib",
+    "version": "0.1.1",
+    "type": "library",
+    "keywords": ["codename", "core", "io"],
+    "time": "2017-10-19",
+    "authors": [
+        {
+            "name": "Kevin Dargel",
+            "role": "Software Developer"
+        }
+    ],
+    "require": {
+      "codename/core" : "*",
+      "codename/setapdf" : "*",
+      "sabre/xml": "^2.1",
+      "dompdf/dompdf" : "^0.8",
+      "phpoffice/phpspreadsheet" : "^1.1"
+    },
+    "require-dev" : {
+      "codename/core" : "*"
+    },
+    "autoload": {
+      "psr-4": {
+          "codename\\core\\io\\": "backend/class/"
+      }
+    },
+    "autoload-dev": {
+      "psr-4": {
+          "codename\\core\\io\\tests\\": "tests/"
+      }
+    }
+}

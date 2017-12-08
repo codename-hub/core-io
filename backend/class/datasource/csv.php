@@ -1,0 +1,313 @@
+<?php
+namespace codename\core\io\datasource;
+use \codename\core\exception;
+
+/**
+ * Datasource encapsulating CSV files
+ */
+class csv extends \codename\core\io\datasource
+  implements \codename\enshared\staticFormConfigProviderInterface {
+
+  /**
+   * [__construct description]
+   * @param string $filepath  path to file
+   * @param array  $config   [description]
+   */
+  public function __construct(string $filepath, array $config = array())
+  {
+    $this->setConfig($config);
+
+    if (($this->handle = fopen($filepath, "r")) !== false)
+    {
+      $this->fstatSize = fstat($this->handle)['size'];
+    }
+    else
+    {
+      throw new exception('FILE_COULD_NOT_BE_OPEN', exception::$ERRORLEVEL_ERROR,array($filepath));
+    }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public static function getFormFieldConfigArrayStatic(array $data = []) : array
+  {
+    return [
+      [
+        'field_title' => 'Trennzeichen',
+        'field_name'  => 'delimiter',
+        'field_type'  => 'input',
+        //
+        // Default: ; (semi-colon)
+        //
+        'field_value' => ';'
+      ],
+      [
+        'field_title'     => 'Kopfzeile vorhanden?',
+        'field_name'      => 'headed',
+        'field_type'      => 'checkbox',
+        'field_datatype'  => 'boolean',
+        //
+        // Default: headed data (true)
+        //
+        'field_value'     => true
+      ],
+      [
+        'field_title'       => 'Leere Zeilen überspringen',
+        'field_description' => 'Aktiviert die Überprüfung und Überspringen von leeren Zeilen',
+        'field_name'      => 'skip_empty_rows',
+        'field_type'      => 'checkbox',
+        'field_datatype'  => 'boolean',
+        'field_value'     => false
+      ],
+      [
+        'field_title'     => 'Codierung',
+        'field_name'      => 'encoding',
+        'field_type'      => 'form',
+        'form'            => [
+          //
+          // TODO: provide available encodings as select, we may pre-select.
+          //
+          'config' => [ 'dummy' => true ],
+          'fields' => [
+            [
+              'field_title' => 'Codierung von',
+              'field_name'  => 'from',
+              'field_type'  => 'input',
+              //
+              // System default, Testing
+              //
+              'field_value' => 'ASCII'
+            ],
+            [
+              'field_title' => 'Codierung zu',
+              'field_name'  => 'to',
+              'field_type'  => 'input',
+              //
+              // System default, Testing
+              //
+              'field_value' => 'UTF-8'
+            ],
+          ],
+        ],
+        'field_value' => $data['encoding'] ?? [ 'from' => 'ASCII', 'to' => 'UTF-8' ] // see system default above!
+      ],
+      [
+        'field_title'     => 'Zeilen von oben überspringen',
+        'field_name'      => 'skip_rows',
+        'field_type'      => 'input',
+        'field_datatype'  => 'number_natural',
+        //
+        // Default: we're not skipping rows (0)
+        //
+        'field_value'     => 0
+      ]
+    ];
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function setConfig(array $config)
+  {
+    $this->delimiter = $config['delimiter'] ?? ',';
+    $this->headed = $config['headed'] ?? true;
+    $this->encoding = $config['encoding'] ?? null;
+    $this->skipRows = $config['skip_rows'] ?? 0;
+    $this->skipEmptyRows = $config['skip_empty_rows'] ?? false;
+  }
+
+  /**
+   * detect and skip empty rows
+   * @var bool
+   */
+  protected $skipEmptyRows = false;
+
+  protected $headings = null;
+
+  /**
+   * returns the headings retrieved for the current file
+   * @return string[] [description]
+   */
+  public function getHeadings() : array {
+    return $this->headings;
+  }
+
+  /**
+   * is true if first line of csv contains heading
+   * @var bool
+   */
+  protected $headed = true;
+
+  /**
+   * the actuall postition
+   * @var int
+   */
+  protected $index;
+
+  /**
+   * [protected description]
+   * @var mixed
+   */
+  protected $handle;
+
+  /**
+   * current array item itself
+   * @var array
+   */
+  protected $current;
+
+  /**
+   * [protected description]
+   * @var [type]
+   */
+  public $delimiter = ';';
+
+  /**
+   * [public description]
+   * @var array
+   */
+  public $encoding = null;
+
+  /**
+   * @inheritDoc
+   */
+  public function current()
+  {
+    return $this->current;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function next()
+  {
+      $current = fgetcsv($this->handle, 0, $this->delimiter);
+
+      if($this->skipRows > 0 && $this->key() === 0)  {
+        for ($i=0; $i < $this->skipRows; $i++) {
+          $current = fgetcsv($this->handle, 0, $this->delimiter);
+        }
+      }
+
+      // update ftell position
+      // $this->ftellPosition = ftell($this->handle);
+
+      // we have to stop next from running
+      // if fgetcsv returns false.
+      if($current === FALSE) {
+        $this->current = false;
+        return;
+      }
+
+      if (!is_null($this->headings))
+      {
+        if($this->skipEmptyRows) {
+          // check for "all-empty"-cells
+          // and loop forward until we reach another vital entry or the real end 
+          while(count(array_filter($current)) === 0) {
+            $current = fgetcsv($this->handle, 0, $this->delimiter);
+            if($current === FALSE) {
+              $this->current = false;
+              return;
+            }
+          }
+        }
+
+        $i = 0;
+        $this->current = array();
+        foreach($this->headings as $head)
+        {
+          if($this->encoding) {
+            $this->current[$head] = mb_convert_encoding($current[$i], $this->encoding['to'], $this->encoding['from']);
+          } else {
+            $this->current[$head] = $current[$i];
+          }
+          $i++;
+        }
+      } else {
+        if($this->encoding) {
+          $this->current = array_map(function($item) {
+            return mb_convert_encoding($item, $this->encoding['to'], $this->encoding['from']);
+          }, $current);
+        } else {
+          $this->current = $current;
+        }
+      }
+
+      // echo "current: ".chr(10);
+      // print_r($this->current);
+      //$this->current = fgetcsv($this->handle, 0, ",");
+
+      if ($this->valid())
+      {
+          if ($this->key() == 0 && $this->headed)
+          {
+              //read in heading
+              $this->headings =  $this->current();
+
+              if($this->encoding) {
+                $this->headings = array_map(function($item) {
+                  return mb_convert_encoding($item, $this->encoding['to'], $this->encoding['from']);
+                }, $this->headings);
+              }
+
+              $this->index++;
+              return $this->next();
+          }
+          $this->index++;
+      }
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function key()
+  {
+    return $this->index;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function valid()
+  {
+    return ($this->current !== FALSE);
+  }
+
+  /**
+   * @inheritDoc
+   */
+  public function rewind()
+  {
+    fseek($this->handle, 0);
+    $this->index = 0;
+    $this->next();
+  }
+
+  protected $ftellPosition = 0;
+
+  /**
+   * @inheritDoc
+   */
+  public function currentProgressPosition(): int
+  {
+    return ftell($this->handle);
+    // return $this->ftellPosition;
+  }
+
+  /**
+   * [protected description]
+   * @var int
+   */
+  protected $fstatSize = 0;
+
+  /**
+   * @inheritDoc
+   */
+  public function currentProgressLimit(): int
+  {
+    return $this->fstatSize;
+  }
+
+}
