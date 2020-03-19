@@ -21,7 +21,7 @@ class update extends \codename\core\io\process\target\model {
         if($filter['value']['source'] == 'transform') {
           $useValue = $this->getPipelineInstance()->getTransformInstance($filter['value']['field'])->transform(null);
         } else {
-          throw new exception('EXCEPTION_CORE_IO_PROCESS_TARGET_MODEL_DELETE_UNSUPPORTED_SOURCE', exception::$ERRORLEVEL_FATAL, $filter);
+          throw new exception('EXCEPTION_CORE_IO_PROCESS_TARGET_MODEL_UPDATE_UNSUPPORTED_SOURCE', exception::$ERRORLEVEL_FATAL, $filter);
         }
       } else {
         $useValue = $filter['value'];
@@ -34,6 +34,10 @@ class update extends \codename\core\io\process\target\model {
       if(is_array($dataEntry)) {
         if($dataEntry['source'] == 'option') {
           $data[$field] = $this->getPipelineInstance()->getOption($dataEntry['field']);
+        } elseif($dataEntry['source'] == 'transform') {
+          $data[$field] = $this->getPipelineInstance()->getTransformInstance($dataEntry['field'])->transform(null);
+        } else {
+          throw new exception('EXCEPTION_CORE_IO_PROCESS_TARGET_MODEL_UPDATE_UNSUPPORTED_SOURCE', exception::$ERRORLEVEL_FATAL, [ $field, $dataEntry ]);
         }
       } else {
         $data[$field] = $dataEntry;
