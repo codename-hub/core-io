@@ -1,7 +1,6 @@
 {
     "name": "codename/core-io",
     "description": "This is going to be the core input and output lib",
-    "version": "0.1.1",
     "type": "library",
     "keywords": ["codename", "core", "io"],
     "time": "2017-10-19",
