@@ -3,7 +3,6 @@
     "description": "This is going to be the core input and output lib",
     "type": "library",
     "keywords": ["codename", "core", "io"],
-    "time": "2017-10-19",
     "authors": [
         {
             "name": "Kevin Dargel",
