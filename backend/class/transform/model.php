@@ -51,13 +51,21 @@ abstract class model extends \codename\core\io\transform {
         if($filter['value'] && isset($filter['value']['source'])) {
           $useValue = $this->getValue($filter['value']['source'], $filter['value']['field'], $value);
           if($useValue == null) {
-            if($this->config['required'] ?? false) {
-              $this->errorstack->addError('VALUE_NULL', 0, [
-                'config' => $this->config,
-                'value' => $value
-              ]);
+            //
+            // NOTE/CHANGED 2020-04-28: Added option "allow_null" to explicitly allow NULL values
+            // for filtering here
+            //
+            if($filter['value']['allow_null'] ?? false) {
+              // Do nothing
+            } else {
+              if($this->config['required'] ?? false) {
+                $this->errorstack->addError('VALUE_NULL', 0, [
+                  'config' => $this->config,
+                  'value' => $value
+                ]);
+              }
+              return null;
             }
-            return null;
           }
         } else {
           $useValue = $filter['value'];
