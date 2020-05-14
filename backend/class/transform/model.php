@@ -31,7 +31,7 @@ abstract class model extends \codename\core\io\transform {
         $this->model->addGroup($group);
       }
     }
-    if($calculatedFields = $this->config['calculated_fields']) {
+    if($calculatedFields = $this->config['calculated_fields'] ?? false) {
       foreach($calculatedFields as $calculatedField) {
         $this->model->addCalculatedField($calculatedField['field'], $calculatedField['calculation']);
       }
@@ -75,7 +75,7 @@ abstract class model extends \codename\core\io\transform {
       }
     }
 
-    if($this->config['aggregate_filter']) {
+    if($this->config['aggregate_filter'] ?? false) {
       foreach($this->config['aggregate_filter'] as $filter) {
         if($filter['value'] && isset($filter['value']['source'])) {
           $useValue = $this->getValue($filter['value']['source'], $filter['value']['field'], $value);
