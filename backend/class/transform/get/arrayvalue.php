@@ -12,9 +12,9 @@ class arrayvalue extends \codename\core\io\transform\get {
   {
     parent::__construct($config);
 
-    $this->source = $this->config['source'];
+    $this->source = $this->config['source'] ?? null;
     $this->isSource = $this->config['source'] == 'source';
-    $this->field = $this->config['field'];
+    $this->field = $this->config['field'] ?? null;
     $this->indexIsArray = is_array($this->config['index']);
     $this->indexValue  = $this->config['index'];
     $this->indexSource = $this->config['index']['source'] ?? null;
