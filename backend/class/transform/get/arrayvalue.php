@@ -98,7 +98,7 @@ class arrayvalue extends \codename\core\io\transform\get {
       // dynamic index
       $index = $this->getValue($this->indexSource, $this->indexField, $value);
 
-      if($v[$index] ?? false) {
+      if(!($v[$index] ?? false)) {
         if($this->required) {
           $this->errorstack->addError('GET_ARRAYVALUE_MISSING', 0, [
             'config' => $this->config,
@@ -111,7 +111,7 @@ class arrayvalue extends \codename\core\io\transform\get {
       return $v[$index];
     } else {
 
-      if($v[$this->indexValue] ?? false) {
+      if(!($v[$this->indexValue] ?? false)) {
         if($this->required) {
           $this->errorstack->addError('GET_ARRAYVALUE_MISSING', 0, [
             'config' => $this->config,
