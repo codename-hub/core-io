@@ -22,7 +22,11 @@ class encoding extends \codename\core\io\transform\convert {
     //     $v = $value[$this->config['field']];
     //   }
     // }
-    return mb_convert_encoding($v, $this->config['to'], $this->config['from']);
+    if($v !== null) {
+      return mb_convert_encoding($v, $this->config['to'], $this->config['from']);
+    } else {
+      return null;
+    }
   }
 
   /**
