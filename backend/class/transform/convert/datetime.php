@@ -9,12 +9,69 @@ class datetime extends \codename\core\io\transform\convert {
   /**
    * @inheritDoc
    */
+  public function __construct(array $config)
+  {
+    parent::__construct($config);
+    $this->source = $this->config['source'];
+    $this->field = $this->config['field'];
+    $this->required = $this->config['field'] ?? null;
+    $this->sourceFormat = $this->config['source_format'];
+    $this->sourceFormatIsArray = is_array($this->config['source_format']);
+    $this->targetFormat = $this->config['target_format'];
+    $this->modify = $this->config['modify'] ?? null;
+  }
+
+  /**
+   * source type
+   * @var string
+   */
+  protected $source = null;
+
+  /**
+   * source field to use
+   * @var string
+   */
+  protected $field = null;
+
+  /**
+   * whether transform should output something non-falsy
+   * @var bool
+   */
+  protected $required = null;
+
+  /**
+   * whether we're using arrays for source/input format specs
+   * @var bool
+   */
+  protected $sourceFormatIsArray = null;
+
+  /**
+   * source format(s) allowed
+   * @var string|string[]
+   */
+  protected $sourceFormat = null;
+
+  /**
+   * target format to convert to
+   * @var string
+   */
+  protected $targetFormat = null;
+
+  /**
+   * modifier string
+   * @var string|null
+   */
+  protected $modify = null;
+
+  /**
+   * @inheritDoc
+   */
   public function internalTransform($value)
   {
-    $v = $this->getValue($this->config['source'], $this->config['field'], $value);
+    $v = $this->getValue($this->source, $this->field, $value);
 
     if($v === null) {
-      if(isset($this->config['required']) && $this->config['required']) {
+      if($this->required) {
         $this->errorstack->addError('VALUE_NULL', 0, [
           'config' => $this->config,
           'value' => $value
@@ -23,8 +80,8 @@ class datetime extends \codename\core\io\transform\convert {
       return null;
     } else {
       $dt = false;
-      if(is_array($this->config['source_format'])) {
-        foreach($this->config['source_format'] as $sourceFormat) {
+      if($this->sourceFormatIsArray) {
+        foreach($this->sourceFormat as $sourceFormat) {
           $dt = \DateTime::createFromFormat($sourceFormat, $v);
           if($dt !== false) {
             // first successful match
@@ -32,13 +89,13 @@ class datetime extends \codename\core\io\transform\convert {
           }
         }
       } else {
-        $dt = \DateTime::createFromFormat($this->config['source_format'], $v);
+        $dt = \DateTime::createFromFormat($this->sourceFormat, $v);
       }
       if($dt !== false) {
-        if($this->config['modify'] ?? false) {
-          $dt->modify($this->config['modify']);
+        if($this->modify) {
+          $dt->modify($this->modify);
         }
-        return $dt->format($this->config['target_format']);
+        return $dt->format($this->targetFormat);
       } else {
         // NOTE: we have to log this error to the errorstack either way
         // as we have a value (!= null) that leads to an internal conversion error
