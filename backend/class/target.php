@@ -57,15 +57,61 @@ abstract class target {
     foreach($filters as $filter) {
       switch ($filter['operator']) {
         case '=':
-          $filterFunctions[] = function(array $data) use ($filter) {
-            return (!isset($data[$filter['field']]) && $filter['value'] == null) || (isset($data[$filter['field']]) && ($data[$filter['field']] == $filter['value']));
-          };
+          if($filter['value'] === null) {
+            //
+            // We want the value to be null,
+            // so we return !isset(value) - positive, if not set or null.
+            //
+            $filterFunctions[] = function(array $data) use ($filter) {
+              return (!isset($data[$filter['field']]));
+            };
+          } else {
+            //
+            // We want the value to be not null and specify an explicit value.
+            // So we check for the value being set (via isset() and perform a simple == comparison)
+            //
+            $filterFunctions[] = function(array $data) use ($filter) {
+              return (isset($data[$filter['field']]) && ($data[$filter['field']] == $filter['value']));
+            };
+          }
+          // LEGACY/Old code:
+          // $filterFunctions[] = function(array $data) use ($filter) {
+          //   return (!isset($data[$filter['field']]) && $filter['value'] == null) || (isset($data[$filter['field']]) && ($data[$filter['field']] == $filter['value']));
+          // };
           break;
         case '!=':
-          $filterFunctions[] = function(array $data) use ($filter) {
-            // unset == null => !false, otherwise detail check
-            return (!(!isset($data[$filter['field']]) && $filter['value'] == null)) || (isset($data[$filter['field']]) && $data[$filter['field']] != $filter['value']);
-          };
+          if($filter['value'] === null) {
+            //
+            // We want the value to be != null,
+            // so we check for isset - and this already fulfills our requirements (and returns true)
+            //
+            $filterFunctions[] = function(array $data) use ($filter) {
+              return (isset($data[$filter['field']]));
+            };
+          } else {
+            //
+            // We want the value to be not equal to a specific value.
+            // This is the more complicated on.
+            // By definition, 1!=2, at least for integers. We also perform this for strings.
+            // But it depends on the personal point of view, if we want the value != 123
+            // and we provide NULL. For some RDBMS, this might not be defined.
+            // But we interpret it as a "falsy" value.
+            // The !=NULL case is handled above.
+            //
+            // So, we want the value to be SOME value (except NULL)
+            // - isset() kicks out the NULLs
+            // - and we simply compare via != later on.
+            //
+            // filter.value != VALUE
+            $filterFunctions[] = function(array $data) use ($filter) {
+              return (isset($data[$filter['field']]) && $data[$filter['field']] != $filter['value']);
+            };
+          }
+          // LEGACY/Old code:
+          // $filterFunctions[] = function(array $data) use ($filter) {
+          //   // unset == null => !false, otherwise detail check
+          //   return (!(!isset($data[$filter['field']]) && $filter['value'] == null)) || (isset($data[$filter['field']]) && $data[$filter['field']] != $filter['value']);
+          // };
           break;
         default:
           # code...
