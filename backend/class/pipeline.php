@@ -495,7 +495,7 @@ class pipeline implements \codename\core\io\transformerInterface
               $processed = $transformInstance->transform($data);
 
               // track errorstate and errors
-              if(count($transformInstance->getErrors()) > 0 ) {
+              if(\count($transformInstance->getErrors()) > 0 ) {
                 if(!$erroneous['erroneous']) {
                   $erroneous['erroneous'] = true;
                 }
@@ -569,7 +569,7 @@ class pipeline implements \codename\core\io\transformerInterface
                     if (mb_check_encoding($k,'UTF-8') === false) {
                         $k = utf8_encode($k);
                     }
-                    if (!is_array($v) && mb_check_encoding($v,'UTF-8') === false) {
+                    if (!\is_array($v) && mb_check_encoding($v,'UTF-8') === false) {
                         $v = utf8_encode($v);
                     }
                     $dataUtf8[$k] = $v;

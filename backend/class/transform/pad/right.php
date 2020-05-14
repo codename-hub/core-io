@@ -11,6 +11,6 @@ class right extends \codename\core\io\transform\pad {
   public function internalTransform($value)
   {
     $v = $this->getValue($this->config['source'] ?? 'source', $this->config['field'], $value);
-    return str_pad($v, $this->config['length'], $this->config['string'], STR_PAD_RIGHT);
+    return \str_pad($v, $this->config['length'], $this->config['string'], STR_PAD_RIGHT);
   }
 }

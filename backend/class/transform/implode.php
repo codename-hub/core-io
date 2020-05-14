@@ -43,7 +43,7 @@ class implode extends \codename\core\io\transform {
     // return implode($this->glue, array_values(array_intersect_key($value, $this->fields)));
     $values = [];
     foreach($this->fields as $field) {
-      if(is_array($field)) {
+      if(\is_array($field)) {
         $values[] = $this->getValue($field['source'], $field['field'], $value);
       } else {
         //
