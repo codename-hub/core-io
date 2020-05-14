@@ -14,7 +14,7 @@ class datetime extends \codename\core\io\transform\convert {
     parent::__construct($config);
     $this->source = $this->config['source'];
     $this->field = $this->config['field'];
-    $this->required = $this->config['field'] ?? null;
+    $this->required = $this->config['required'] ?? null;
     $this->sourceFormat = $this->config['source_format'];
     $this->sourceFormatIsArray = is_array($this->config['source_format']);
     $this->targetFormat = $this->config['target_format'];
