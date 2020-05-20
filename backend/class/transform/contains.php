@@ -37,6 +37,10 @@ class contains extends \codename\core\io\transform {
       throw new exception('TRANSFORM_CONTAINS_COLLECTION_MUST_BE_SOURCE_FIELD_CONFIG', exception::$ERRORLEVEL_ERROR);
     }
 
+    if(!is_array($collectionValue)) {
+      return null;
+    }
+
     return in_array($itemValue, $collectionValue);
   }
 
