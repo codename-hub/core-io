@@ -20,10 +20,38 @@ class csv extends \codename\core\io\datasource
     if (($this->handle = fopen($filepath, "r")) !== false)
     {
       $this->fstatSize = fstat($this->handle)['size'];
+
+      if($this->autodetectUtf8Bom) {
+        $this->handleUtf8Bom();
+      }
     }
     else
     {
       throw new exception('FILE_COULD_NOT_BE_OPEN', exception::$ERRORLEVEL_ERROR,array($filepath));
+    }
+  }
+
+  /**
+   * this function detects UTF8-BOM, if we're at the beginning of the file
+   * and causes the datasource to skip these bytes
+   * @return [type] [description]
+   */
+  protected function handleUtf8Bom() {
+    if(ftell($this->handle) !== 0) {
+      return; // skip, as we are not on pos 0 (beginning of file)
+    }
+
+    if(($header = fread($this->handle, 3)) !== false) {
+      if(strcmp($header, self::UTF8_BOM) === 0) {
+        // enable BOM handling
+        // TODO: kill existing encoding transformations
+        //
+      } else {
+        // rewind to start, no UTF8-BOM
+        fseek($this->handle, 0);
+      }
+    } else {
+      // nothing? error?
     }
   }
 
@@ -51,6 +79,16 @@ class csv extends \codename\core\io\datasource
         // Default: headed data (true)
         //
         'field_value'     => true
+      ],
+      [
+        'field_title'     => 'UTF8-BOM automatisch erkennen',
+        'field_name'      => 'headed',
+        'field_type'      => 'checkbox',
+        'field_datatype'  => 'boolean',
+        //
+        // Default: false, legacy compatibility
+        //
+        'field_value'     => false
       ],
       [
         'field_title'       => 'Leere Zeilen überspringen',
@@ -115,6 +153,7 @@ class csv extends \codename\core\io\datasource
     $this->encoding = $config['encoding'] ?? null;
     $this->skipRows = $config['skip_rows'] ?? 0;
     $this->skipEmptyRows = $config['skip_empty_rows'] ?? false;
+    $this->autodetectUtf8Bom = $config['autodetect_utf8_bom'] ?? false;
   }
 
   /**
@@ -124,6 +163,19 @@ class csv extends \codename\core\io\datasource
   protected $skipEmptyRows = false;
 
   protected $headings = null;
+
+  /**
+   * [protected description]
+   * @var bool
+   */
+  protected $autodetectUtf8Bom = false;
+
+  /**
+   * [UTF8_BOM description]
+   * see https://stackoverflow.com/questions/5601904/encoding-a-string-as-utf-8-with-bom-in-php
+   * @var string
+   */
+  const UTF8_BOM = "\xEF\xBB\xBF"; // chr(239) . chr(187) . chr(191);
 
   /**
    * returns the headings retrieved for the current file
@@ -204,7 +256,7 @@ class csv extends \codename\core\io\datasource
       {
         if($this->skipEmptyRows) {
           // check for "all-empty"-cells
-          // and loop forward until we reach another vital entry or the real end 
+          // and loop forward until we reach another vital entry or the real end
           while(count(array_filter($current)) === 0) {
             $current = fgetcsv($this->handle, 0, $this->delimiter);
             if($current === FALSE) {
@@ -281,6 +333,9 @@ class csv extends \codename\core\io\datasource
   public function rewind()
   {
     fseek($this->handle, 0);
+    if($this->autodetectUtf8Bom) {
+      $this->handleUtf8Bom();
+    }
     $this->index = 0;
     $this->next();
   }
