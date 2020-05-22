@@ -43,6 +43,20 @@ class conditioned extends \codename\core\io\transform\get {
             return $returnFieldValue;
           }
           break;
+        case '>':
+          // NOTE: inverted order
+          if($comparisonValue < $conditionFieldValue) {
+            $returnFieldValue = !is_array($condition['return']) ? $condition['return'] : ($this->getValue($condition['return']['source'], $condition['return']['field'], $value));
+            return $returnFieldValue;
+          }
+          break;
+        case '<':
+        // NOTE: inverted order
+          if($comparisonValue > $conditionFieldValue) {
+            $returnFieldValue = !is_array($condition['return']) ? $condition['return'] : ($this->getValue($condition['return']['source'], $condition['return']['field'], $value));
+            return $returnFieldValue;
+          }
+          break;
         default:
           break;
       }
