@@ -82,7 +82,7 @@ class csv extends \codename\core\io\datasource
       ],
       [
         'field_title'     => 'UTF8-BOM automatisch erkennen',
-        'field_name'      => 'headed',
+        'field_name'      => 'autodetect_utf8_bom',
         'field_type'      => 'checkbox',
         'field_datatype'  => 'boolean',
         //
