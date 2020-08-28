@@ -31,6 +31,12 @@ class spreadsheet extends \codename\core\io\target\buffered\file {
    * [protected description]
    * @var [type]
    */
+  protected $freeze = null;
+
+  /**
+   * [protected description]
+   * @var [type]
+   */
   protected $key_row = null;
 
   /**
@@ -73,6 +79,7 @@ class spreadsheet extends \codename\core\io\target\buffered\file {
     }
 
     $this->use_writer = $this->config['use_writer'] ?? null;
+    $this->freeze = $this->config['freeze'] ?? null;
     $this->key_row = $this->config['key_row'] ?? null;
     $this->start_row = $this->config['start_row'] ?? 1;
     $this->sheet = $this->config['sheet'] ?? 0;
@@ -161,6 +168,10 @@ class spreadsheet extends \codename\core\io\target\buffered\file {
       $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
     }
     $worksheet = $spreadsheet->setActiveSheetIndex($this->sheet);
+
+    if($this->freeze) {
+      $worksheet->freezePane($this->freeze);
+    }
 
     $mapping = $this->getMapping();
     $columnIndexMap = [];
