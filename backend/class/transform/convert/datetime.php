@@ -19,6 +19,7 @@ class datetime extends \codename\core\io\transform\convert {
     $this->sourceFormatIsArray = is_array($this->config['source_format']);
     $this->targetFormat = $this->config['target_format'];
     $this->modify = $this->config['modify'] ?? null;
+    $this->set_time_to_null = $this->config['set_time_to_null'] ?? null;
   }
 
   /**
@@ -64,6 +65,12 @@ class datetime extends \codename\core\io\transform\convert {
   protected $modify = null;
 
   /**
+   * [protected description]
+   * @var bool|null
+   */
+  protected $set_time_to_null = null;
+
+  /**
    * @inheritDoc
    */
   public function internalTransform($value)
@@ -92,6 +99,9 @@ class datetime extends \codename\core\io\transform\convert {
         $dt = \DateTime::createFromFormat($this->sourceFormat, $v);
       }
       if($dt !== false) {
+        if ($this->set_time_to_null ?? false) {
+          $dt->setTime(0,0);
+        }
         if($this->modify) {
           $dt->modify($this->modify);
         }
