@@ -18,7 +18,13 @@ class datetime extends \codename\core\io\transform\convert {
     $this->sourceFormat = $this->config['source_format'];
     $this->sourceFormatIsArray = is_array($this->config['source_format']);
     $this->targetFormat = $this->config['target_format'];
-    $this->modify = $this->config['modify'] ?? null;
+    if($modify = $this->config['modify'] ?? null) {
+      if(is_array($modify)) {
+        $this->modifyDynamic = $modify;
+      } else {
+        $this->modifyFixed = $modify;
+      }
+    }
     $this->set_time_to_null = $this->config['set_time_to_null'] ?? null;
   }
 
@@ -59,10 +65,16 @@ class datetime extends \codename\core\io\transform\convert {
   protected $targetFormat = null;
 
   /**
-   * modifier string
+   * modifier string - fixed value/modifier
    * @var string|null
    */
-  protected $modify = null;
+  protected $modifyFixed = null;
+
+  /**
+   * modifier array - dynamic value/modifier (with transform reference)
+   * @var array|null
+   */
+  protected $modifyDynamic = null;
 
   /**
    * [protected description]
@@ -102,8 +114,13 @@ class datetime extends \codename\core\io\transform\convert {
         if ($this->set_time_to_null ?? false) {
           $dt->setTime(0,0);
         }
-        if($this->modify) {
-          $dt->modify($this->modify);
+        if($this->modifyFixed) {
+          // modify using a static/fixed value
+          $dt->modify($this->modifyFixed);
+        } else if($this->modifyDynamic) {
+          // modify using dynamic value
+          $modify = $this->getValue($this->modifyDynamic['source'], $this->modifyDynamic['field'], $value);
+          $dt->modify($modify);
         }
         return $dt->format($this->targetFormat);
       } else {
