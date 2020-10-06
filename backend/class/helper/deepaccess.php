@@ -35,7 +35,7 @@ class deepaccess {
   public static function set($obj, array $keys, $value) {
     $dive = &$obj;
     foreach($keys as $key) {
-      if(!is_array($dive)) {
+      if(!\is_array($dive)) {
         $dive = [ $key => true ];
       }
       if(isset($dive[$key])) {
