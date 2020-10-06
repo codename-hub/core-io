@@ -63,7 +63,10 @@ class model extends \codename\core\io\datasource
       // $config = array_replace($config, $databaseConfig);
     }
 
-    if($query = $config['query'] ?? false) {
+    //
+    // Allow empty queries to be pre-configured
+    //
+    if(($query = ($config['query'] ?? false)) || (is_array($query = $config['query'] ?? false))) {
       $this->setQuery($query);
     }
 
@@ -144,6 +147,20 @@ class model extends \codename\core\io\datasource
       $model->hideAllFields();
       foreach($fields as $field) {
         $model->addField($field);
+      }
+    }
+
+    //
+    // Apply source-based filters & filtercollections as default filter(collections)
+    //
+    if($filter = $config['filter'] ?? null) {
+      foreach($filter as $f) {
+        $model->addDefaultfilter($f['field'], $f['value'], $f['operator'] ?? '=');
+      }
+    }
+    if($filtercollection = $config['filtercollection'] ?? null) {
+      foreach($filtercollection as $fc) {
+        $model->addDefaultFilterCollection($fc['filters'], $fc['group_operator'] ?? 'AND', $fc['group_name'] ?? 'default', $fc['conjunction'] ?? 'AND');
       }
     }
 
