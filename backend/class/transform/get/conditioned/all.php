@@ -22,7 +22,7 @@ class all extends \codename\core\io\transform\get\conditioned
             break 2;
           }
         case '!=':
-          $evalResult &= ($comparisonValue == $conditionFieldValue);
+          $evalResult &= ($comparisonValue != $conditionFieldValue);
           if(!$evalResult) {
             break 2;
           }
