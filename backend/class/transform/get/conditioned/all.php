@@ -21,11 +21,13 @@ class all extends \codename\core\io\transform\get\conditioned
           if(!$evalResult) {
             break 2;
           }
+          break;
         case '!=':
           $evalResult &= ($comparisonValue != $conditionFieldValue);
           if(!$evalResult) {
             break 2;
           }
+          break;
         default:
           break;
       }
