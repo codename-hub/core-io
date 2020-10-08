@@ -12,12 +12,17 @@ class valuearray extends \codename\core\io\transform\get {
   {
     $arr = [];
     foreach($this->config['elements'] as $k => $v) {
-      if(!is_array($v)) {
+      if(!\is_array($v)) {
         // bare value
         $arr[$k] = $v;
       } else {
         $val = $this->getValue($v['source'], $v['field'], $value);
-        if(isset($v['required']) && !$this->config['required'] && $val === null) {
+        if(($v['required'] ?? false) && $val === null) {
+          $this->errorstack->addError('GET_VALUEARRAY_MISSING_KEY', 0, [
+            'config' => $this->config,
+            'key' => $k,
+            'value' => $value
+          ]);
           continue; // ??
         } else if($val === null) {
           continue;
