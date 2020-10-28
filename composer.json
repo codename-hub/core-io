@@ -14,6 +14,7 @@
       "codename/setapdf" : "*",
       "sabre/xml": "^2.1",
       "dompdf/dompdf" : "^0.8",
+      "jocoon/parquet" : "*",
       "phpoffice/phpspreadsheet" : "^1.1"
     },
     "require-dev" : {
