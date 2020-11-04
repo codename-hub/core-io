@@ -18,6 +18,11 @@ class datetime extends \codename\core\io\transform\convert {
     $this->sourceFormat = $this->config['source_format'];
     $this->sourceFormatIsArray = is_array($this->config['source_format']);
     $this->targetFormat = $this->config['target_format'];
+
+    if(in_array($this->targetFormat, ['DateTime', 'DateTimeImmutable'])) {
+      $this->datetimeObjectConversion = true;
+    }
+
     if($modify = $this->config['modify'] ?? null) {
       if(is_array($modify)) {
         $this->modifyDynamic = $modify;
@@ -27,6 +32,12 @@ class datetime extends \codename\core\io\transform\convert {
     }
     $this->set_time_to_null = $this->config['set_time_to_null'] ?? null;
   }
+
+  /**
+   * [protected description]
+   * @var bool
+   */
+  protected $datetimeObjectConversion = false;
 
   /**
    * source type
@@ -122,6 +133,15 @@ class datetime extends \codename\core\io\transform\convert {
           $modify = $this->getValue($this->modifyDynamic['source'], $this->modifyDynamic['field'], $value);
           $dt->modify($modify);
         }
+
+        if($this->datetimeObjectConversion) {
+          if($this->targetFormat === 'DateTime') {
+            return $dt;
+          } else if($this->targetFormat === 'DateTimeImmutable') {
+            return \DateTimeImmutable::createFromMutable($dt);
+          }
+        }
+
         return $dt->format($this->targetFormat);
       } else {
         // NOTE: we have to log this error to the errorstack either way
