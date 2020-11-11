@@ -72,6 +72,7 @@ class model extends \codename\core\io\datasource
 
     if($this->offsetBuffering = $config['offset_buffering'] ?? false) {
       $this->offsetBufferSize = $config['offset_buffer_size'] ?? 100;
+      $this->offsetLimit = $config['offset_limit'] ?? null;
     }
 
     if($modelName = $config['model'] ?? null) {
@@ -191,6 +192,13 @@ class model extends \codename\core\io\datasource
   protected $offsetBufferSize = null;
 
   /**
+   * Total limit, across all buffered runs
+   * This emulates a "LIMIT", if offset buffering enabled.
+   * @var int
+   */
+  protected $offsetLimit = null;
+
+  /**
    * current query parameters being used
    * @var array
    */
@@ -251,6 +259,12 @@ class model extends \codename\core\io\datasource
         // if($this->valid()) {
         //   $this->currentResult['___offset_buffer_jump'] = $this->rowId;
         // }
+      }
+
+      if($this->offsetLimit !== null) {
+        if($this->offsetLimit <= $this->rowId) {
+          $this->currentResult = false; // emulate limit?
+        }
       }
 
       // DEBUG:
