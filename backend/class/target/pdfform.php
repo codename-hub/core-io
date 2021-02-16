@@ -208,11 +208,6 @@ class pdfform extends \codename\core\io\target {
           //
           $field->setValue($data[$fieldName]);
 
-          if(empty($this->flattenExclude)
-            || !in_array($field->getFieldObject->getObjectId(), $this->flattenExclude)
-          ) {
-
-          }
           // Add field (by field fqn) to the to-be-flattened-fields
           $flattenFieldsByNames[] = $field->getQualifiedName();
 
@@ -331,9 +326,14 @@ class pdfform extends \codename\core\io\target {
           // Handle regular fields (Tx)
           //
           $fieldObject = $field->getFieldObject();
+          if(isset($data[$fieldObject->getObjectId()])) {
 
-          $flattenFieldsByNames[] = $field->getQualifiedName();
+            // set field value
+            $field->setValue($data[$fieldObject->getObjectId()]);
 
+            // Add field (by field fqn) to the to-be-flattened-fields
+            $flattenFieldsByNames[] = $field->getQualifiedName();
+          }
         }
       }
     }
