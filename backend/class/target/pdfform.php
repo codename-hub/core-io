@@ -28,6 +28,7 @@ class pdfform extends \codename\core\io\target {
     $this->outputFilePath = $config['outputfile'];
     $this->flatten = $config['flatten'] ?? false;
     $this->flattenMode = $config['flatten_mode'] ?? null;
+    $this->flattenExclude = $config['flatten_exclude'] ?? [];
   }
 
   /**
@@ -54,7 +55,19 @@ class pdfform extends \codename\core\io\target {
    */
   protected $flatten = false;
 
+  /**
+   * Array of PDF Object IDs to exclude from flattening process
+   * @var string[]
+   */
+  protected $flattenExclude = [];
 
+  /**
+   * [setFlattenExclude description]
+   * @param array $fields [description]
+   */
+  public function setFlattenExclude(array $fields) {
+    $this->flattenExclude = $fields;
+  }
 
   /**
    * @inheritDoc
@@ -195,6 +208,11 @@ class pdfform extends \codename\core\io\target {
           //
           $field->setValue($data[$fieldName]);
 
+          if(empty($this->flattenExclude)
+            || !in_array($field->getFieldObject->getObjectId(), $this->flattenExclude)
+          ) {
+
+          }
           // Add field (by field fqn) to the to-be-flattened-fields
           $flattenFieldsByNames[] = $field->getQualifiedName();
 
@@ -313,14 +331,8 @@ class pdfform extends \codename\core\io\target {
           // Handle regular fields (Tx)
           //
           $fieldObject = $field->getFieldObject();
-          if(isset($data[$fieldObject->getObjectId()])) {
 
-            // set field value
-            $field->setValue($data[$fieldObject->getObjectId()]);
-
-            // Add field (by field fqn) to the to-be-flattened-fields
-            $flattenFieldsByNames[] = $field->getQualifiedName();
-          }
+          $flattenFieldsByNames[] = $field->getQualifiedName();
 
         }
       }
@@ -335,19 +347,51 @@ class pdfform extends \codename\core\io\target {
 
 
     if($this->flatten) {
+
       // if($this->flattenMode === self::FLATTEN_MODE_SET) {
-        foreach($flattenFieldsByNames as $fieldName) {
-          if($fields->offsetExists($fieldName)) {
-            if($field = $fields->get($fieldName)) {
-              $field->flatten();
+      foreach($flattenFieldsByNames as $fieldName) {
+        if($fields->offsetExists($fieldName)) {
+          if($field = $fields->get($fieldName)) {
+
+            // Partial flattening - check for PDF object IDs
+            if($field instanceof \SetaPDF_FormFiller_Field_AbstractField) {
+              $fieldObject = $field->getFieldObject();
+              if(in_array($fieldObject->getObjectId(), $this->flattenExclude)) {
+                continue;
+              }
+            }
+            $field->flatten();
+          }
+        }
+      }
+
+      if($this->flattenMode === self::FLATTEN_MODE_ALL) {
+
+        // Track to-be-flattened field instances
+        // (only needed for partial flatten)
+        $flattenFieldInstances = [];
+
+        foreach($fields as $name => $field) {
+
+          if($field instanceof \SetaPDF_FormFiller_Field_AbstractField) {
+            $fieldObject = $field->getFieldObject();
+            if(in_array($fieldObject->getObjectId(), $this->flattenExclude)) {
+              // Exclude field by PDF Object ID
+              continue;
+            } else {
+              $flattenFieldInstances[] = $field;
             }
           }
         }
-      if($this->flattenMode === self::FLATTEN_MODE_ALL) {
-        foreach($fields as $field) {
-          $field->flatten();
+
+        // only flatten all, if no exclusions defined
+        if(empty($this->flattenExclude)) {
+          $fields->flatten();
+        } else {
+          foreach($flattenFieldInstances as $fieldInstance) {
+            $fields->flatten($fieldInstance);
+          }
         }
-        $fields->flatten();
       }
     }
 
