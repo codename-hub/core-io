@@ -1,8 +1,6 @@
 <?php
 namespace codename\core\io\tests\transform;
 
-use codename\core\app;
-
 class explodeTest extends abstractTransformTest
 {
   /**
