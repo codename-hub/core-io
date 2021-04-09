@@ -25,6 +25,15 @@ if(file_exists($globalBootstrap)) {
   die("ERROR: No global bootstrap.cli.php found. You might want to initialize your cross-project autoloader using the root composer.json first." . chr(10) );
 }
 
+// core autoloader, to inherit test classes
+$coreAutoload = realpath(__DIR__.'/../../core/vendor/autoload.php');
+if(file_exists($coreAutoload)) {
+  echo("Including autoloader at " . $coreAutoload . chr(10) );
+  require_once $coreAutoload;
+} else {
+  die("ERROR: No core vendor/autoloader.php found. Please call \"composer dump-autoload\" in the core directory." . chr(10) );
+}
+
 // local autoloader
 $localAutoload = realpath(__DIR__.'/../vendor/autoload.php');
 if(file_exists($localAutoload)) {
