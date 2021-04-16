@@ -140,7 +140,6 @@ class implodeTest extends abstractTransformTest
       $transform->getSpecification()
     );
 
-    $this->markTestIncomplete('Transform implode is missing spec output for constants');
     $transform = $this->getTransform('implode', [
       'allowConstants' => true,
       'fields' => [
