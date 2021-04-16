@@ -18,9 +18,10 @@ class source extends \codename\core\validator\structure\config {
    */
   public function validate($value): array
   {
-    parent::validate($value);
+    if(count(parent::validate($value)) != 0) {
+        return $this->errorstack->getErrors();
+    }
 
-    
 
     return $this->getErrors();
   }
