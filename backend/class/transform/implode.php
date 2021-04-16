@@ -75,7 +75,12 @@ class implode extends \codename\core\io\transform {
       if(is_array($field)) {
         $sources[] = "{$field['source']}.{$field['field']}";
       } else {
-        $sources[] = "source.{$field}";
+        if($this->allowConstants) {
+          $sources[] = "{$field}";
+        } else {
+          // NOTE: fallback to source = source
+          $sources[] = "source.{$field}" ?? "fallbackValue";
+        }
       }
     }
 
