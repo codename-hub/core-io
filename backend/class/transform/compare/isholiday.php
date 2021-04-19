@@ -37,7 +37,7 @@ class isholiday extends \codename\core\io\transform\compare {
     return [
       'type' => 'transform',
       // TODO: implement transform as a source!
-      'source' => [ "source.{$this->config['field']}" ]
+      'source' => [ "source.{$this->config['country']['field']}", "source.{$this->config['date']['field']}" ]
     ];
   }
 
