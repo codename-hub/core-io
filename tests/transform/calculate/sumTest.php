@@ -11,13 +11,12 @@ class sumTest extends \codename\core\io\tests\transform\abstractTransformTest
     $transform = $this->getTransform('calculate_sum', [
       'fields'    => [
         [ 'source'  => 'source', 'field'   => 'example_source_field1' ],
-        'example_source_field2',
+        1.2345,
       ],
       'precision' => 2,
     ]);
     $result = $transform->transform([
       'example_source_field1'  => 1.2345,
-      'example_source_field2'  => 1.2345,
     ]);
     // Make sure it stays an array
     $this->assertEquals(bcadd(1.2345, 1.2345, 2), $result);

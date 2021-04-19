@@ -16,7 +16,7 @@ class rightTest extends \codename\core\io\tests\transform\abstractTransformTest
       'example_source_field'  => ' example '
     ]);
     // Make sure it stays an array
-    $this->assertEquals('example', $result);
+    $this->assertEquals(' example', $result);
   }
 
   /**
