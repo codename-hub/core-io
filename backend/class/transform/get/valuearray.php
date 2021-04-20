@@ -75,7 +75,7 @@ class valuearray extends \codename\core\io\transform\get {
         $field = $v['field'];
       }
 
-      $sources[] = "{$v['source']}.{$field}";
+      $sources[$k] = "{$v['source']}.{$field}";
     }
 
     return [
