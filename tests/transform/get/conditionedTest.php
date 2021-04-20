@@ -47,6 +47,101 @@ class conditionedTest extends abstractTransformTest
   }
 
   /**
+   * Tests using a single condition that does *NOT* match and returns default value
+   * which is not being set
+   */
+  public function testSingleConditionFalseReturnNullRequired(): void {
+    $transform = $this->getTransform('get_conditioned', [
+      'required'  => true,
+      'condition' => [
+        [
+          'source'    => 'source',
+          'field'     => 'example_source_field',
+          'operator'  => '=',
+          'value'     => 123,
+          'return'    => true
+        ]
+      ],
+    ]);
+    $result = $transform->transform([
+      'example_source_field' => 234
+    ]);
+    $this->assertNull($result);
+
+    $errors = $transform->getErrors();
+    $this->assertNotEmpty($errors);
+    $this->assertCount(1, $errors);
+    $this->assertEquals('GET_CONDITIONED_MISSING', $errors[0]['__IDENTIFIER'] );
+    $this->assertEquals('TRANSFORM.0', $errors[0]['__CODE'] );
+  }
+
+  /**
+   * Tests using a single condition that does *NOT* match and returns default value
+   * which is not being set
+   */
+  public function testSingleWrongOperator(): void {
+    $transform = $this->getTransform('get_conditioned', [
+      'condition' => [
+        [
+          'source'    => 'source',
+          'field'     => 'example_source_field',
+          'operator'  => 'example',
+          'value'     => 123,
+          'return'    => true
+        ]
+      ],
+    ]);
+    $result = $transform->transform([
+      'example_source_field' => 234
+    ]);
+    $this->assertNull($result);
+  }
+
+  /**
+   * Tests using a single condition that does *NOT* match and returns default value
+   * which is not being set
+   */
+  public function testSingleDefault(): void {
+    $transform = $this->getTransform('get_conditioned', [
+      'default'   => 'example',
+      'condition' => [
+        [
+          'source'    => 'source',
+          'field'     => 'example_source_field',
+          'operator'  => 'example',
+          'value'     => 123,
+          'return'    => true
+        ]
+      ],
+    ]);
+    $result = $transform->transform([
+      'example_source_field' => 234
+    ]);
+    $this->assertEquals('example', $result);
+
+    $transform = $this->getTransform('get_conditioned', [
+      'default'   => [
+        'source'    => 'source',
+        'field'     => 'example_default_field',
+      ],
+      'condition' => [
+        [
+          'source'    => 'source',
+          'field'     => 'example_source_field',
+          'operator'  => 'example',
+          'value'     => 123,
+          'return'    => true
+        ]
+      ],
+    ]);
+    $result = $transform->transform([
+      'example_source_field'  => 234,
+      'example_default_field' => 'example',
+    ]);
+    $this->assertEquals('example', $result);
+  }
+
+  /**
    * [testSingleConditionTrueReturnDynamic description]
    */
   public function testSingleConditionTrueReturnDynamic(): void {
@@ -77,7 +172,7 @@ class conditionedTest extends abstractTransformTest
   public function testFuzzed(): void {
 
     $testArray = [
-      
+
       // regular comparisons
       [ 'input' => 123,   'operator' => '=',    'compare' => 123,   'matches' => true  ],
       [ 'input' => 123,   'operator' => '!=',   'compare' => 123,   'matches' => false ],
@@ -164,22 +259,27 @@ class conditionedTest extends abstractTransformTest
     }
   }
 
-
-
-  // /**
-  //  * Test Spec output (simple case)
-  //  */
-  // public function testSpecification(): void {
-  //   $transform = $this->getTransform('get_conditioned', [
-  //     'source'  => 'source',
-  //     'field'   => 'example_source_field'
-  //   ]);
-  //   $this->assertEquals(
-  //     [
-  //       'type'    => 'transform',
-  //       'source'  => [ 'source.example_source_field' ]
-  //     ],
-  //     $transform->getSpecification()
-  //   );
-  // }
+  /**
+   * Test Spec output (simple case)
+   */
+  public function testSpecification(): void {
+    $transform = $this->getTransform('get_conditioned', [
+      'condition' => [
+        [
+          'source'    => 'source',
+          'field'     => 'example_source_field',
+          'operator'  => '=',
+          'value'     => 123,
+          'return'    => true
+        ]
+      ]
+    ]);
+    $this->assertEquals(
+      [
+        'type'    => 'transform',
+        'source'  => [ 'source.example_source_field' ]
+      ],
+      $transform->getSpecification()
+    );
+  }
 }
