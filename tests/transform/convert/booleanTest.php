@@ -1,5 +1,5 @@
 <?php
-namespace codename\core\io\tests\transform\compare;
+namespace codename\core\io\tests\transform\convert;
 
 class booleanTest extends \codename\core\io\tests\transform\abstractTransformTest
 {

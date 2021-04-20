@@ -1,7 +1,7 @@
 <?php
-namespace codename\core\io\tests\transform;
+namespace codename\core\io\tests\transform\get;
 
-class conditionedTest extends abstractTransformTest
+class conditionedTest extends \codename\core\io\tests\transform\abstractTransformTest
 {
   /**
    * Tests using a single condition that matches and returns a static value (bool)
