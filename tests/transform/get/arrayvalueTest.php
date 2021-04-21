@@ -47,6 +47,35 @@ class arrayvalueTest extends \codename\core\io\tests\transform\abstractTransform
   /**
    * Testing transforms for Erors
    */
+  public function testValueValidCase3(): void {
+    $transform = $this->getTransform('get_arrayvalue', [
+      'source'  => 'option',
+      'field'   => 'example_source_field',
+      'index'   => [
+        'source'  => 'source',
+        'field'   => 'example_index_field',
+      ]
+    ]);
+
+    $pipline = new \codename\core\io\pipeline(null, []);
+    $pipline->setOptions([
+      'example_source_field'  => [
+        'example' => true
+      ],
+    ]);
+    $transform->setPipelineInstance($pipline);
+
+    $result = $transform->transform([
+      'example_index_field'   => 'example',
+    ]);
+
+    // Make sure it stays an array
+    $this->assertTrue($result);
+  }
+
+  /**
+   * Testing transforms for Erors
+   */
   public function testValueMissingValueCase1(): void {
     $transform = $this->getTransform('get_arrayvalue', [
       'source'    => 'source',

@@ -23,7 +23,29 @@ class filteredTest extends \codename\core\io\tests\transform\abstractTransformTe
     ]);
 
     // Make sure it stays an array
-    $this->assertEquals('example', $result );
+    $this->assertEquals('1', $result );
+  }
+
+  /**
+   * Testing transforms for Erors
+   */
+  public function testValueValidCase2(): void {
+    $transform = $this->getTransform('get_filtered', [
+      'source'  => 'source',
+      'field'   => 'example_source_field',
+      'filter'  => [
+        [
+          'operator'  => '!=',
+          'value'     => 0,
+        ]
+      ]
+    ]);
+    $result = $transform->transform([
+      'example_source_field'  => 1,
+    ]);
+
+    // Make sure it stays an array
+    $this->assertEquals('1', $result );
   }
 
   /**
