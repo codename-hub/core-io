@@ -41,11 +41,11 @@ class numberformat extends \codename\core\io\transform\convert {
       $this->numberFormatter = new \NumberFormatter($this->locale, self::getNumberFormatterStyle($this->style));
     }
 
-    if($fractionDigits = $this->config['fraction_digits'] ?? null) {
-      $this->numberFormatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $fractionDigits);
+    if($this->numberFormatter && ($this->config['fraction_digits'] ?? null)) {
+      $this->numberFormatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $this->config['fraction_digits']);
     }
 
-    if(array_key_exists('grouping_separator_symbol',$this->config)) {
+    if($this->numberFormatter && array_key_exists('grouping_separator_symbol',$this->config)) {
       $this->numberFormatter->setSymbol(\NumberFormatter::GROUPING_SEPARATOR_SYMBOL, $this->config['grouping_separator_symbol']);
     }
   }
