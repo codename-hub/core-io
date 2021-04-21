@@ -10,12 +10,6 @@ class filtered extends \codename\core\io\transform\get {
    */
   public function internalTransform($value)
   {
-    if(!isset($this->config['source'])) {
-      echo("<pre>");
-      print_r($this->config);
-      echo("</pre>");
-    }
-
     $v = $this->getValue($this->config['source'], $this->config['field'], $value);
 
     // apply filter
