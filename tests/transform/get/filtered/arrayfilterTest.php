@@ -101,7 +101,14 @@ class arrayfilterTest extends \codename\core\io\tests\transform\abstractTransfor
     ]);
 
     // Make sure it stays an array
-    $this->assertNull($result);
+    $this->assertEquals([
+      [
+        'example' => 1
+      ],
+      [
+        'example' => 2
+      ],
+    ], $result);
   }
 
   /**
