@@ -28,12 +28,13 @@ class parquet extends \codename\core\io\datasource
   {
     $this->setConfig($config);
 
-    if (($this->handle = fopen($filepath, "r")) !== false)
+    if (($this->handle = @fopen($filepath, "r")) !== false)
     {
       $this->initParquetReader();
     }
     else
     {
+      error_clear_last();
       throw new exception('FILE_COULD_NOT_BE_OPENED', exception::$ERRORLEVEL_ERROR,array($filepath));
     }
   }
