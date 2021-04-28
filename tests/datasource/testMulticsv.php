@@ -1,64 +1,25 @@
 <?php
-namespace codename\core\io\tests;
+namespace codename\core\io\tests\datasource;
 
-class testDataSourceCsv extends \PHPUnit\Framework\TestCase
+class testMulticsv extends \PHPUnit\Framework\TestCase
 {
+
   /**
-   * test an simple csv file
+   * tests general function of the multicsv datasource
    * @return [type] [description]
    */
-  public function testDataSourceIsValid()
-  {
-    //$this->expectException();
-    $uut = new \codename\core\io\datasource\csv(__DIR__ . "/" . 'test1.csv');
-    $uut->next();
-    $data = $uut->current();
-    $this->assertEquals($data['head1'], 'bla');
-    $this->assertEquals($data['head2'], 'foo');
+  public function testMulticsvGeneral () {
+    $datasource = new \codename\core\io\datasource\multicsv(__DIR__ . "/" . 'testmulticsv1.csv');
 
-  }
+    $this->assertEquals('0', $datasource->currentProgressPosition());
 
-  /**
-   * test an simple csv file
-   * @return [type] [description]
-   */
-  public function testDataSourceIsNotValid()
-  {
-    //$this->expectException();
-    $uut = new \codename\core\io\datasource\csv(__DIR__ . "/" . 'test1.csv');
+    $this->assertEquals('68', $datasource->currentProgressLimit());
 
-    $uut->next();
-    $data = $uut->current();
+    $datasource->setConfig([
+      'delimiter' => ';',
+      'headed'    => true,
+    ]);
 
-    // @TODO: we have to use an INVALID csv file for this
-    // $this->assertEquals($data[0], 'bla');
-
-
-  }
-
-  /**
-   * "head1","head2"
-   * "l1_d1","l1_d2"
-   * "l2_d1","l2_d2"
-   * "l3_d1","l3_d2"
-   *
-   * @return void testing the next function
-   */
-  public function testDataSourceNext()
-  {
-    $datasource = new \codename\core\io\datasource\csv(__DIR__ . "/" . 'test2.csv');
-
-    $i = 0;
-    foreach($datasource as $dataset) {
-      $i++;
-      $this->assertEquals($dataset['head0'], "l{$i}_d1");
-      $this->assertEquals($dataset['head1'], "l{$i}_d2");
-    }
-
-    //
-    // make sure we have iterated three times
-    //
-    $this->assertEquals(3, $i);
   }
 
   /**
@@ -67,9 +28,9 @@ class testDataSourceCsv extends \PHPUnit\Framework\TestCase
    */
   public function testDatasourceMulticsvKeys () {
     $datasource = new \codename\core\io\datasource\multicsv([
-      __DIR__ . "/" . 'sequence0.csv',
-      __DIR__ . "/" . 'sequence1.csv',
-      __DIR__ . "/" . 'sequence2.csv'
+      __DIR__ . "/" . 'testmulticsv1.csv',
+      __DIR__ . "/" . 'testmulticsv2.csv',
+      __DIR__ . "/" . 'testmulticsv3.csv'
     ], [
       'delimiter' => ','
     ]);
@@ -108,9 +69,9 @@ class testDataSourceCsv extends \PHPUnit\Framework\TestCase
   public function testMultiDataSourceNext()
   {
     $datasource = new \codename\core\io\datasource\multicsv([
-      __DIR__ . "/" . 'sequence0.csv',
-      __DIR__ . "/" . 'sequence1.csv',
-      __DIR__ . "/" . 'sequence2.csv'
+      __DIR__ . "/" . 'testmulticsv1.csv',
+      __DIR__ . "/" . 'testmulticsv2.csv',
+      __DIR__ . "/" . 'testmulticsv3.csv'
     ], [
       'delimiter' => ','
     ]);

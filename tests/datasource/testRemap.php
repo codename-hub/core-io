@@ -1,11 +1,74 @@
 <?php
-namespace codename\core\io\tests;
+namespace codename\core\io\tests\datasource;
 
 /**
  * [testRemap description]
  */
 class testRemap extends \PHPUnit\Framework\TestCase
 {
+
+  /**
+   * tests general function of the remap datasource
+   * @return [type] [description]
+   */
+  public function testRemapGeneral () {
+    $datasource = new \codename\core\io\datasource\arraydata();
+    $datasource->setData($this->getTestData());
+    $remappedDatasource = new \codename\core\io\datasource\remap(
+      $datasource, [
+        'remap' => [
+          'oldkey1' => 'newkey1',
+          'oldkey2' => 'newkey2',
+          'oldkey3' => 'newkey3',
+        ]
+      ]
+    );
+
+    $formFieldConfigArrayStatic = $remappedDatasource->getFormFieldConfigArrayStatic([]);
+    $this->assertEquals([
+      [
+        'field_title'     => 'Remap',
+        'field_name'      => 'remap',
+        'field_type'      => 'structure',
+        'field_datatype'  => 'structure',
+        'field_value'     => null
+      ],
+      [
+        'field_title'     => 'Replace',
+        'field_name'      => 'replace',
+        'field_type'      => 'checkbox',
+        'field_datatype'  => 'boolean',
+        'field_value'     => false
+      ],
+      [
+        'field_title'     => 'source_data_key',
+        'field_name'      => 'source_data_key',
+        'field_type'      => 'input',
+        'field_datatype'  => 'text',
+        'field_value'     => null
+      ]
+    ], $formFieldConfigArrayStatic);
+
+    // rewind the datasources
+    $remappedDatasource->rewind();
+
+    $result = $remappedDatasource->current();
+    $this->assertEquals([
+      'newkey1' => 'abc',
+      'newkey2' => 'def',
+      'newkey3' => 'ghi',
+    ], $result);
+
+    $this->assertEquals('0', $remappedDatasource->currentProgressPosition());
+
+    $this->assertEquals('3', $remappedDatasource->currentProgressLimit());
+
+    $this->assertEquals('0', $remappedDatasource->key());
+
+    $this->assertTrue($remappedDatasource->valid());
+
+  }
+
   /**
    * tests general function of the remap datasource
    * @return [type] [description]
@@ -19,6 +82,7 @@ class testRemap extends \PHPUnit\Framework\TestCase
           'oldkey1' => 'newkey1',
           'oldkey2' => 'newkey2',
           'oldkey3' => 'newkey3',
+          'oldkey4' => [ 'newarraykey1', 'newarraykey2' ],
         ]
       ]
     );
@@ -170,17 +234,20 @@ class testRemap extends \PHPUnit\Framework\TestCase
       [
         'oldkey1' => 'abc',
         'oldkey2' => 'def',
-        'oldkey3' => 'ghi'
+        'oldkey3' => 'ghi',
+        'oldkey4' => [ 'jkl', 'mno' ]
       ],
       [
         'oldkey1' => 'jkl',
         'oldkey2' => 'mno',
-        'oldkey3' => 'pqr'
+        'oldkey3' => 'pqr',
+        'oldkey4' => [ 'stu', 'vwx' ]
       ],
       [
         'oldkey1' => 'stu',
         'oldkey2' => 'vwx',
-        'oldkey3' => 'yz'
+        'oldkey3' => 'yz',
+        'oldkey4' => [ 'abc', 'def' ]
       ]
     ];
   }

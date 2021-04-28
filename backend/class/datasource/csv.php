@@ -17,7 +17,7 @@ class csv extends \codename\core\io\datasource
   {
     $this->setConfig($config);
 
-    if (($this->handle = fopen($filepath, "r")) !== false)
+    if (($this->handle = @fopen($filepath, "r")) !== false)
     {
       $this->fstatSize = fstat($this->handle)['size'];
 
@@ -27,6 +27,7 @@ class csv extends \codename\core\io\datasource
     }
     else
     {
+      error_clear_last();
       throw new exception('FILE_COULD_NOT_BE_OPEN', exception::$ERRORLEVEL_ERROR,array($filepath));
     }
   }
