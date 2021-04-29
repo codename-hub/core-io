@@ -7,6 +7,16 @@ namespace codename\core\io\helper;
 class deepaccess {
 
   /**
+   * This is a purely static helper class
+   * and *MUST NOT* be initialized as an instance
+   * This will throw an error exception, as you cannot
+   * call this private constructor
+   */
+  private function __construct()
+  {
+  }
+
+  /**
    * deeply access a key in a nested array or object
    *
    * @param  mixed|array|object $obj  [description]

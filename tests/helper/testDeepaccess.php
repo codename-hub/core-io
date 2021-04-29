@@ -1,19 +1,29 @@
 <?php
 namespace codename\core\io\tests\helper;
 
+use codename\core\io\helper\deepaccess;
+
 class testDeepaccess extends \PHPUnit\Framework\TestCase
 {
+  /**
+   * [testDeepaccessNotInitializable description]
+   */
+  public function testDeepaccessNotInitializable(): void {
+    // Deepaccess helper is a pure static helper
+    // and MUST NOT be initialized.
+    $this->expectException(\Error::class);
+    new deepaccess();
+  }
 
   /**
    * [testDeepaccessGet description]
    * @return [type] [description]
    */
   public function testDeepaccess () {
-    $helper = new \codename\core\io\helper\deepaccess();
     $example = [];
 
     // set example data
-    $example = $helper->set($example, [ 'example1', 'example2' ], 'example');
+    $example = deepaccess::set($example, [ 'example1', 'example2' ], 'example');
 
     $this->assertEquals([
       'example1'  => [
@@ -22,12 +32,12 @@ class testDeepaccess extends \PHPUnit\Framework\TestCase
     ], $example);
 
     // get example data
-    $result = $helper->get($example, [ 'example1', 'example2' ]);
+    $result = deepaccess::get($example, [ 'example1', 'example2' ]);
 
     $this->assertEquals('example', $result);
 
     // get not exists key
-    $result = $helper->get($example, [ 'error1', 'error2' ]);
+    $result = deepaccess::get($example, [ 'error1', 'error2' ]);
 
     $this->assertNull($result);
 
