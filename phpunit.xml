@@ -15,6 +15,9 @@
     <testsuite name="datasource">
       <directory suffix=".php">tests/datasource</directory>
     </testsuite>
+    <testsuite name="target">
+      <directory suffix=".php">tests/target</directory>
+    </testsuite>
     <testsuite name="transform">
       <directory suffix=".php">tests/transform</directory>
     </testsuite>
