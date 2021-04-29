@@ -1,5 +1,5 @@
 <?php
-namespace codename\core\io\tests\datasource;
+namespace codename\core\io\tests\helper;
 
 class testDeepaccess extends \PHPUnit\Framework\TestCase
 {
