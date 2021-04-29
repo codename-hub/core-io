@@ -202,6 +202,11 @@ class buffered extends \codename\core\io\datasource {
     }
 
     $this->currentValue = null;
+
+    // CHANGED 2021-04-29: missed next() call, leading to inconsistencies
+    // when using iteration interfaces
+    // NOTE: might cause side-effects with several underlying datasources.
+    $this->next();
   }
 
   /**
