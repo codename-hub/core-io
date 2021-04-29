@@ -26,9 +26,8 @@ class import extends \codename\core\io\tests\validator\structure {
      * @return void
      */
     public function testValueInvalidKeySource() {
-      $this->markTestIncomplete('make checks in import\source');
       $config = [
-        'source'  => [],
+        'source'  => '',
         'target'  => [],
       ];
       $this->assertNotEmpty($this->getValidator()->validate($config));
@@ -39,10 +38,9 @@ class import extends \codename\core\io\tests\validator\structure {
      * @return void
      */
     public function testValueInvalidKeyTarget() {
-      $this->markTestIncomplete('make checks in import\target');
       $config = [
         'source'  => [],
-        'target'  => [],
+        'target'  => '',
       ];
       $this->assertNotEmpty($this->getValidator()->validate($config));
     }
@@ -52,11 +50,10 @@ class import extends \codename\core\io\tests\validator\structure {
      * @return void
      */
     public function testValueInvalidKeyTransform() {
-      $this->markTestIncomplete('make checks in import\transform');
       $config = [
         'source'    => [],
         'target'    => [],
-        'transform' => [],
+        'transform' => 'example',
       ];
       $this->assertNotEmpty($this->getValidator()->validate($config));
     }
