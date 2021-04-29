@@ -295,30 +295,44 @@ class spreadsheet extends \codename\core\io\datasource
       $cellIterator = $row->getCellIterator();
 
       $newCurrentValue = [];
+      $valueCount = 0;
 
       foreach($cellIterator as $cell) {
         // we may distinguish formulas from formatted datetime values or others.
-        $cellValue = $cell->getFormattedValue(); // $cell->isFormula() || $cell->getDataType == \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE ? $cell->getCalculatedValue() : $cell->getFormattedValue();
-        $cellColumn = $cell->getColumn();
+        // $cellValue = $cell->getFormattedValue(); // $cell->isFormula() || $cell->getDataType == \PhpOffice\PhpSpreadsheet\Cell\DataType::TYPE ? $cell->getCalculatedValue() : $cell->getFormattedValue();
 
-        if(!$this->includeEmptyRows) {
-          if(empty($cellValue)) {
-            continue;
+        $cellValue = null;
+        if($cell instanceof \PhpOffice\PhpSpreadsheet\Cell\Cell) {
+          if($cell->isFormula()) {
+            $cellValue = $cell->getCalculatedValue();
+          } else {
+            // $cellValue = $cell->getValue();
+            $cellValue = $cell->getFormattedValue();
           }
         }
+
+        if(!empty($cellValue)) {
+          $valueCount++;
+        }
+
+        $cellColumn = $cell->getColumn();
 
         // check for a mapping match:
         if($this->headed && isset($this->currentColumnMapping[$cellColumn])) {
           $newCurrentValue[$this->currentColumnMapping[$cellColumn]] = $cellValue;
         } else {
           // Skip empty values that are not mapped in any way
-          if(!empty($cellValue)) {
-            $newCurrentValue[$cellColumn] = $cellValue;
-          }
+          // if(!empty($cellValue)) {
+          // CHANGED 2021-04-29: handling of empty-row-skipping done below
+          // otherwise, we can't handle empty cells/null values
+          $newCurrentValue[$cellColumn] = $cellValue;
+          // }
         }
       }
 
-      if(!$this->includeEmptyRows && count($newCurrentValue) === 0) {
+      if(!$this->includeEmptyRows && $valueCount === 0) {
+        // if we have no values in this row (valueCount === 0)
+        // and we want to skip empty rows, simply move on to next row.
         $this->next();
       } else {
         $this->globalRowIndex++;
