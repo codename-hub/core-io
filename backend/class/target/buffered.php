@@ -57,7 +57,7 @@ abstract class buffered extends \codename\core\io\target
     $this->finished = true;
     $this->storeBufferedData();
 
-    \codename\core\app::getResponse()->setData('buffered_tags_debug', $this->tagsArray);
+    // \codename\core\app::getResponse()->setData('buffered_tags_debug', $this->tagsArray);
   }
 
 }
