@@ -237,5 +237,48 @@ class modelTest extends base {
     ]);
   }
 
+  /**
+   * [testTargetStoreReadUsingDatasource description]
+   */
+  public function testTargetStoreReadUsingDatasource(): void {
+    $target = new \codename\core\io\target\model('test', [
+      'model'   => 'testmodel',
+      'method'  => 'replace'
+    ]);
+
+    $target->store([
+      'testmodel_text'          => 'unique_single1',
+      'testmodel_unique_single' => 'UNIQUE1',
+    ]);
+
+    $target->store([
+      'testmodel_text'          => 'unique_single2',
+      'testmodel_unique_single' => 'UNIQUE1',
+    ]);
+
+    $target->store([
+      'testmodel_text'          => 'unique_multi1',
+      'testmodel_unique_multi1' => 'UNIQUE_V1',
+      'testmodel_unique_multi2' => 'UNIQUE_V2',
+    ]);
+    $target->store([
+      'testmodel_text'          => 'unique_multi2',
+      'testmodel_unique_multi1' => 'UNIQUE_V1',
+      'testmodel_unique_multi2' => 'UNIQUE_V2',
+    ]);
+
+    $datasource = new \codename\core\io\datasource\model([
+      'query' => [],
+      'model' => 'testmodel',
+    ]);
+
+    $res = [];
+    foreach($datasource as $r) {
+      $res[] = $r;
+    }
+
+    $this->assertEquals(['unique_single2', 'unique_multi2'], array_column($res, 'testmodel_text'));
+  }
+
 
 }
