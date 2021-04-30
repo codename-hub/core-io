@@ -33,6 +33,14 @@ abstract class abstractWriteReadTest extends base {
   }
 
   /**
+   * [getSampleTags description]
+   * @return array|null
+   */
+  protected function getSampleTags(): ?array {
+    return null;
+  }
+
+  /**
    * Creates the instance for the generic write-read test
    * @return \codename\core\io\target [description]
    */
@@ -69,8 +77,9 @@ abstract class abstractWriteReadTest extends base {
   public function testWriteReadTarget(): void {
     $target = $this->getWriteReadTargetInstance();
     $samples = $this->getSampleData();
+    $tags = $this->getSampleTags();
     foreach($samples as $sample) {
-      $target->store($sample);
+      $target->store($sample, $tags);
     }
     $target->finish();
     $this->compareData($target, $samples);
