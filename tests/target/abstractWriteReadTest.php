@@ -86,5 +86,30 @@ abstract class abstractWriteReadTest extends base {
     $this->cleanupTarget($target);
   }
 
+  /**
+   * [testCallingStoreAfterFinishCrashes description]
+   */
+  public function testCallingStoreAfterFinishCrashes(): void {
+    $target = $this->getWriteReadTargetInstance();
+    $samples = $this->getSampleData();
+    $tags = $this->getSampleTags();
+    foreach($samples as $sample) {
+      $target->store($sample, $tags);
+    }
+    $target->finish();
+
+    // In this case, we do not compare,
+    // but try to call store() again
+    // which MUST result in an exception
+    try {
+      $target->store([]);
+      $this->fail('Exception EXCEPTION_CORE_IO_TARGET_BUFFERED_ALREADY_FINISHED did not happen!');
+    } catch (\codename\core\exception $e) {
+      $this->assertEquals('EXCEPTION_CORE_IO_TARGET_BUFFERED_ALREADY_FINISHED', $e->getMessage());
+    }
+
+    $this->cleanupTarget($target);
+  }
+
 
 }
