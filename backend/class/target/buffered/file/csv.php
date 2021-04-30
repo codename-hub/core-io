@@ -140,6 +140,7 @@ class csv extends \codename\core\io\target\buffered\file {
         // fill with empty array, if not set
         $tagsChunk = array_fill(0, count($dataChunk), []);
       }
+
       foreach($tagsChunk as &$tagsElement) {
         // force csv extension in tag
         $tagsElement['file_extension'] = 'csv';
@@ -147,7 +148,9 @@ class csv extends \codename\core\io\target\buffered\file {
         if(count($dataChunks) > 1) {
           // override filename with chunk number
           if($addendum = $tagsElement['file_name_add'] ?? ('_'.($index+1))) {
-            $tagsElement['file_name'] .= $addendum;
+            // CHANGED 2021-04-30: we now fallback to an empty string as base filename
+            // if nothing provided.
+            $tagsElement['file_name'] = ($tagsElement['file_name'] ?? '') . $addendum;
           }
         }
       }

@@ -48,10 +48,8 @@ class multicsv extends \codename\core\io\datasource
     $i = 0;
     foreach($files as $file)
     {
-      $subconfig = [
-        'headed' => $this->headed,
-        'delimiter' => $this->delimiter
-      ];
+      // CHANGED 2021-04-30: we now passthrough the full config to nested datasources
+      $subconfig = $this->config->get();
       $this->datasources[$i] = new \codename\core\io\datasource\csv($file, $subconfig);
       $i++;
     }
@@ -60,19 +58,25 @@ class multicsv extends \codename\core\io\datasource
   }
 
   /**
+   * [protected description]
+   * @var \codename\core\config
+   */
+  protected $config = null;
+
+  /**
    * @inheritDoc
    */
   public function setConfig(array $config)
   {
-    $this->delimiter = $config['delimiter'] ?? ';';
-    $this->headed = $config['headed'] ?? true;
+    // CHANGED 2021-04-30: we now passthrough the full config to nested datasources
+    // and fallback configs to default + store them in a member variable
+    $this->delimiter = $config['delimiter'] = $config['delimiter'] ?? ';';
+    $this->headed = $config['headed'] = $config['headed'] ?? true;
+    $this->config = new \codename\core\config($config);
 
     foreach($this->datasources as $datasource) {
-      // TODO: we may provider more configs, e.g. pass full config to subdatasources
-      $subconfig = [
-        'headed' => $this->headed,
-        'delimiter' => $this->delimiter
-      ];
+      // CHANGED 2021-04-30: we now passthrough the full config to nested datasources
+      $subconfig = $subconfig = $this->config->get();
       $datasource->setConfig($subconfig);
     }
   }
