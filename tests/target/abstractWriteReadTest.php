@@ -75,10 +75,11 @@ abstract class abstractWriteReadTest extends base {
   /**
    * [testWriteReadTarget description]
    * @param array $configOverride [description]
+   * @param array|null $samplesOverride [description]
    */
-  public function testWriteReadTarget(array $configOverride = []): void {
+  public function testWriteReadTarget(array $configOverride = [], ?array $samplesOverride = null): void {
     $target = $this->getWriteReadTargetInstance($configOverride);
-    $samples = $this->getSampleData();
+    $samples = $samplesOverride ?? $this->getSampleData();
     $tags = $this->getSampleTags();
     foreach($samples as $sample) {
       $target->store($sample, $tags);
