@@ -46,6 +46,21 @@ abstract class abstractTransformTest extends \codename\core\tests\base
   }
 
   /**
+   * [addTransform description]
+   * @param string $name   [description]
+   * @param string $type   [description]
+   * @param array  $config [description]
+   * @return \codename\core\io\transform
+   */
+  protected function addTransform(string $name, string $type, array $config): \codename\core\io\transform {
+    if($this->transforms[$name] ?? false) {
+      throw new \Exception("Transform `{$name}` already added.");
+    }
+    $this->transforms[$name] = $this->getTransform($type, $config);
+    return $this->transforms[$name];
+  }
+
+  /**
    * [getTransform description]
    * @param  string                         $type                [description]
    * @param  array|null                     $config              [description]
