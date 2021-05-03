@@ -38,6 +38,33 @@ class parquetBufferedWriteReadTest extends abstractWriteReadTest {
   }
 
   /**
+   * Special test with an overridden target class
+   * to allow empty data pages/RGs to be written in-between
+   */
+  public function testEmptyDataPagesInbetween(): void {
+    $target = new overriddenParquetTarget('parquet_empty_data_pages_test', [
+      'buffer'      => true,
+      'buffer_size' => 2,
+      'mapping' => [
+        'key1' => [ 'php_type' => 'string'  ],
+        'key2' => [ 'php_type' => 'integer' ],
+        'key3' => [ 'php_type' => 'double'  ],
+        'key4' => [ 'php_type' => 'string', 'is_nullable' => true  ],
+      ]
+    ]);
+    $samples = $this->getSampleData();
+    $tags = $this->getSampleTags();
+    foreach($samples as $sample) {
+      $target->publicWriteData([]);
+      $target->store($sample, $tags);
+      $target->publicWriteData([]);
+    }
+    $target->finish();
+    $this->compareData($target, $samples);
+    $this->cleanupTarget($target);
+  }
+
+  /**
    * @inheritDoc
    */
   protected function getWriteReadTargetInstance(array $configOverride = []): \codename\core\io\target
@@ -82,4 +109,16 @@ class parquetBufferedWriteReadTest extends abstractWriteReadTest {
     }
   }
 
+}
+
+class overriddenParquetTarget extends \codename\core\io\target\buffered\file\parquet {
+  /**
+   * public access to ::writeData for simulating special kinds
+   * of parquet files (e.g. writing empty RGs/data pages)
+   * @param  array  $data [description]
+   * @return void
+   */
+  public function publicWriteData(array $data): void {
+    $this->writeData($data);
+  }
 }
