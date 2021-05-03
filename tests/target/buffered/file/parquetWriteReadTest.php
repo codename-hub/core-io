@@ -9,6 +9,12 @@ class parquetWriteReadTest extends abstractWriteReadTest {
    * [testOtherDatatypesUsingAutoguess description]
    */
   public function testOtherDatatypesUsingAutoguess(): void {
+
+    if(!extension_loaded('gmp')) {
+      $this->addWarning('GMP extension required for working with arbitrary precision numbers in Parquet.');
+      return;
+    }
+
     $this->testWriteReadTarget([
       'mapping' => [
         'key_string'            => [ ],

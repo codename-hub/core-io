@@ -3,6 +3,17 @@ namespace codename\core\io\tests\transform\get;
 
 class easterdatetimeTest extends \codename\core\io\tests\transform\abstractTransformTest
 {
+  /**
+   * @inheritDoc
+   */
+  protected function setUp(): void
+  {
+    parent::setUp();
+    if(!extension_loaded('calendar')) {
+      $this->addWarning('Calendar extension needed for testing get_easterdatetime transform');
+    }
+  }
+
 
   /**
    * Testing transforms for Erors
