@@ -8,7 +8,7 @@ class multicsvWriteReadTest extends abstractWriteReadTest {
   /**
    * @inheritDoc
    */
-  protected function getWriteReadTargetInstance(): \codename\core\io\target
+  protected function getWriteReadTargetInstance(array $configOverride = []): \codename\core\io\target
   {
     //
     // We're simply writing a CSV split at 2 items/rows each

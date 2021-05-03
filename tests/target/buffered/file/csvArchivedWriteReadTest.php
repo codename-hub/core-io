@@ -24,7 +24,7 @@ class csvArchivedWriteReadTest extends abstractWriteReadTest {
   /**
    * @inheritDoc
    */
-  protected function getWriteReadTargetInstance(): \codename\core\io\target
+  protected function getWriteReadTargetInstance(array $configOverride = []): \codename\core\io\target
   {
     return new \codename\core\io\target\buffered\file\csv('csv_test', [
 

@@ -42,9 +42,10 @@ abstract class abstractWriteReadTest extends base {
 
   /**
    * Creates the instance for the generic write-read test
+   * @param  array $configOverride [optional configuration override]
    * @return \codename\core\io\target [description]
    */
-  protected abstract function getWriteReadTargetInstance(): \codename\core\io\target;
+  protected abstract function getWriteReadTargetInstance(array $configOverride = []): \codename\core\io\target;
 
   /**
    * Read the target's written/collected data
@@ -73,9 +74,10 @@ abstract class abstractWriteReadTest extends base {
 
   /**
    * [testWriteReadTarget description]
+   * @param array $configOverride [description]
    */
-  public function testWriteReadTarget(): void {
-    $target = $this->getWriteReadTargetInstance();
+  public function testWriteReadTarget(array $configOverride = []): void {
+    $target = $this->getWriteReadTargetInstance($configOverride);
     $samples = $this->getSampleData();
     $tags = $this->getSampleTags();
     foreach($samples as $sample) {
