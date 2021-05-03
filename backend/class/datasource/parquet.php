@@ -127,7 +127,7 @@ class parquet extends \codename\core\io\datasource
    */
   public function next()
   {
-    if($this->currentIndex === null || $this->currentIndex > $this->currentRowCount) {
+    if($this->currentIndex === null) {
       // trigger read on first try or when required to advance to the next row group
       if(!$this->read()) {
         return;
@@ -135,10 +135,35 @@ class parquet extends \codename\core\io\datasource
 
       $this->currentIndex = 0;
       $this->overallKey = 0;
-      return;
+      // NOTE/CHANGED 2021-05-03: we might receive an empty datapage
+      // right from the start, so we have to execute the code below...
+    } else {
+      //
+      // we're still working on the current, already-read rowgroup/page
+      // move on to next key - it will automatically lead to page change,
+      // if required
+      //
+      $this->currentIndex++;
+      $this->overallKey++;
     }
-    $this->currentIndex++;
-    $this->overallKey++;
+
+    if($this->currentIndex >= $this->currentRowCount) {
+
+      if($this->read()) {
+        // try to overcome empty datapage/rowgroup reading
+        // if the last read produced an empty result set
+        // continue reading
+        while(empty($this->currentRowGroupData)) {
+          //
+          // If we reach the end (read returning false)
+          // break out, we really reached the end.
+          //
+          if(!$this->read()) {
+            break;
+          }
+        }
+      }
+    }
   }
 
   /**
