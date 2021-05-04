@@ -575,6 +575,95 @@ class modelTest extends abstractTransformTest
   }
 
   /**
+   * [testModelResultAllNull description]
+   */
+  public function testModelResultAllNull(): void {
+    $this->createSampleTestData();
+
+    //
+    // static value / constant with allow_null
+    //
+    $transform = $this->getTransform('model_result_all', [
+      'model'   => 'transformmodel',
+      'filter'  => [
+        [ 'field' => 'transformmodel_text', 'operator' => '!=', 'value' => [ 'source' => 'source', 'field' => 'source_key1', 'allow_null' => true ] ]
+      ]
+    ]);
+    $result = $transform->transform([]);
+    $this->assertCount(4, $result, print_r($result, true));
+
+    //
+    // static value / constant with null and required
+    //
+    $transform = $this->getTransform('model_result_all', [
+      'required'  => true,
+      'model'     => 'transformmodel',
+      'filter'    => [
+        [ 'field' => 'transformmodel_text', 'operator' => '=', 'value' => [ 'source' => 'source', 'field' => 'source_key1' ] ]
+      ]
+    ]);
+    $result = $transform->transform([]);
+    $this->assertNull($result);
+
+    $errors = $transform->getErrors();
+    $this->assertNotEmpty($errors);
+    $this->assertCount(1, $errors);
+    $this->assertEquals('VALUE_NULL', $errors[0]['__IDENTIFIER'] );
+    $this->assertEquals('TRANSFORM.0', $errors[0]['__CODE'] );
+
+    //
+    // static value / constant with null and required
+    //
+    $transform = $this->getTransform('model_result_all', [
+      'required'          => true,
+      'model'             => 'transformmodel',
+      'calculated_fields' => [
+        [ 'field' => 'textIntegerOne', 'calculation' => 'SUM(transformmodel_integer)' ],
+      ],
+      'aggregate_filter' => [
+        [ 'field' => 'textIntegerOne', 'operator' => '=', 'value' => [ 'source' => 'source', 'field' => 'source_key1' ] ],
+      ],
+      'group'   => [
+        'transformmodel_id'
+      ]
+    ]);
+    $result = $transform->transform([]);
+    $this->assertNull($result);
+
+    $errors = $transform->getErrors();
+    $this->assertNotEmpty($errors);
+    $this->assertCount(1, $errors);
+    $this->assertEquals('VALUE_NULL', $errors[0]['__IDENTIFIER'] );
+    $this->assertEquals('TRANSFORM.0', $errors[0]['__CODE'] );
+
+    //
+    // static value / constant with null and required
+    //
+    $transform = $this->getTransform('model_result_all', [
+      'required'          => true,
+      'model'             => 'transformmodel',
+      'filtercollection'  => [
+        'example' => [
+          'filters'         => [
+            [ 'field' => 'transformmodel_integer', 'operator' => '=', 'value' => [ 'source' => 'source', 'field' => 'source_key1' ] ]
+          ],
+          'group_operator'  => 'AND',
+          'conjunction'     => 'AND',
+        ],
+      ],
+    ]);
+    $result = $transform->transform([]);
+    $this->assertCount(1, $result);
+
+    $errors = $transform->getErrors();
+    $this->assertNotEmpty($errors);
+    $this->assertCount(1, $errors);
+    $this->assertEquals('VALUE_NULL', $errors[0]['__IDENTIFIER'] );
+    $this->assertEquals('TRANSFORM.0', $errors[0]['__CODE'] );
+
+  }
+
+  /**
    * [testModelResultAllOnetime description]
    */
   public function testModelResultAllOnetime(): void {
