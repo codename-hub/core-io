@@ -194,6 +194,8 @@ class modelTest extends abstractTransformTest
    * Tests model_save with PKey (editing data)
    */
   public function testModelSaveWithPKey(): void {
+    $this->createSampleTestData();
+
     $pseudoPipeline = new \codename\core\io\pipeline(null, []);
     $pseudoPipeline->setDryRun(false);
 
@@ -207,13 +209,25 @@ class modelTest extends abstractTransformTest
     $transform->setPipelineInstance($pseudoPipeline);
     $result = $transform->transform([
       'model_data'  => [
-        'transformmodel_id'       => 1,
+        'transformmodel_id'       => 2,
         'transformmodel_text'     => 'abc',
         'transformmodel_integer'  => 123,
       ]
     ]);
 
-    $this->assertEquals(1, $result);
+    $this->assertEquals(2, $result, print_r($result, true));
+
+    $dataset = $this->getModel('transformmodel')
+      ->hideAllFields()
+      ->addField('transformmodel_id')
+      ->addField('transformmodel_text')
+      ->addField('transformmodel_integer')
+      ->load(2);
+    $this->assertEquals([
+      'transformmodel_id'       => 2,
+      'transformmodel_text'     => 'abc',
+      'transformmodel_integer'  => 123,
+    ], $dataset);
   }
 
   /**
@@ -429,6 +443,59 @@ class modelTest extends abstractTransformTest
     ]);
     $result = $transform->transform([]);
     $this->assertCount(2, $result);
+
+    //
+    // static value / constant with grouping
+    //
+    $transform = $this->getTransform('model_result_all', [
+      'model'   => 'transformmodel',
+      'filter'  => [
+        [ 'field' => 'transformmodel_text', 'operator' => '=', 'value' => ['foo', 'qux'] ]
+      ],
+      'group'   => [
+        'transformmodel_id'
+      ]
+    ]);
+    $result = $transform->transform([]);
+    $this->assertCount(2, $result);
+
+    //
+    // static value / constant with calculated_fields and aggregate_filter
+    //
+    $transform = $this->getTransform('model_result_all', [
+      'model'             => 'transformmodel',
+      'filter'            => [
+        [ 'field' => 'transformmodel_integer', 'operator' => '!=', 'value' => null ]
+      ],
+      'filtercollection'  => [
+        'example' => [
+          'filters'         => [
+            [ 'field' => 'transformmodel_integer', 'operator' => '=', 'value' => 111 ],
+            [ 'field' => 'transformmodel_integer', 'operator' => '=', 'value' => [ 'source' => 'source', 'field' => 'source_key1' ] ]
+          ],
+          'group_operator'  => 'AND',
+          'conjunction'     => 'AND',
+        ],
+      ],
+      'calculated_fields' => [
+        [ 'field' => 'textIntegerOne', 'calculation' => 'SUM(transformmodel_integer)' ],
+        [ 'field' => 'textIntegerTwo', 'calculation' => 'SUM(transformmodel_integer)' ]
+      ],
+      'aggregate_filter' => [
+        [ 'field' => 'textIntegerOne', 'operator' => '=', 'value' => 111 ],
+        [ 'field' => 'textIntegerTwo', 'operator' => '=', 'value' => [ 'source' => 'source', 'field' => 'source_key1' ] ]
+      ],
+      'group'   => [
+        'transformmodel_id'
+      ]
+    ]);
+    $result = $transform->transform([
+      'source_key1' => 111
+    ]);
+
+    $this->assertCount(1, $result);
+    $this->assertEquals(111, $result[0]['textIntegerOne']);
+    $this->assertEquals(111, $result[0]['textIntegerTwo']);
 
     //
     // static value / constant, no matches
