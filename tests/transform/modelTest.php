@@ -23,6 +23,10 @@ class modelTest extends abstractTransformTest
    */
   protected function tearDown(): void
   {
+    $this->getModel('tjsample')
+      ->addFilter('tjsample_id', 0, '>')
+      ->delete();
+
     $this->getModel('transformmodel')
       ->addFilter('transformmodel_id', 0, '>')
       ->delete();
@@ -105,6 +109,38 @@ class modelTest extends abstractTransformTest
       return new \codename\core\io\tests\transform\model\transformmodel([]);
     });
 
+    static::createModel('transformtest', 'tjsample', [
+      'field' => [
+        'tjsample_id',
+        'tjsample_created',
+        'tjsample_modified',
+        'tjsample_transformmodel_id',
+        'tjsample_text',
+        'tjsample_integer',
+      ],
+      'primary' => [
+        'tjsample_id'
+      ],
+      'foreign' => [
+        'tjsample_transformmodel_id' => [
+          'schema'  => 'transformtest',
+          'model'   => 'transformmodel',
+          'key'     => 'transformmodel_id'
+        ],
+      ],
+      'datatype' => [
+        'tjsample_id'       => 'number_natural',
+        'tjsample_created'  => 'text_timestamp',
+        'tjsample_modified' => 'text_timestamp',
+        'tjsample_transformmodel_id' => 'number_natural',
+        'tjsample_text'     => 'text',
+        'tjsample_integer'  => 'number_natural',
+      ],
+      'connection' => 'default'
+    ], function($schema, $model, $config) {
+      return new \codename\core\io\tests\transform\model\tjsample([]);
+    });
+
     static::architect('transformmodeltest', 'codename', 'test');
   }
 
@@ -133,6 +169,28 @@ class modelTest extends abstractTransformTest
     $model = $this->getModel('transformmodel');
     foreach ($datasets as $dataset) {
       $model->save($dataset);
+    }
+  }
+
+  /**
+   * Additionally creates joinable datasets in model tjsample
+   */
+  protected function createJoinableSampleTestData(): void {
+    //
+    // create joinable counterparts in tjsample
+    //
+    $model = $this->getModel('transformmodel');
+    $res = $model->search()->getResult();
+
+    // make sure there's data to join
+    $this->assertNotEmpty($res);
+
+    $tjSample = $this->getModel('tjsample');
+    foreach($res as $r) {
+      $tjSample->save([
+        'tjsample_text'               => $r['transformmodel_text'].'-join',
+        'tjsample_transformmodel_id'  => $r[$model->getPrimaryKey()],
+      ]);
     }
   }
 
@@ -549,6 +607,30 @@ class modelTest extends abstractTransformTest
       'source_key1' => ['baz', 'qux']
     ]);
     $this->assertEquals($result, $otherResult);
+  }
+
+  /**
+   * Tests basic query using a simple joined model.
+   */
+  public function testModelResultOneJoined(): void {
+    $this->createSampleTestData();
+    $this->createJoinableSampleTestData();
+
+    //
+    // static value / constant
+    //
+    $transform = $this->getTransform('model_result_one', [
+      'model'   => 'transformmodel',
+      'join'    => [
+        [ 'model' => 'tjsample' ]
+      ],
+      'filter'  => [
+        [ 'field' => 'transformmodel_text', 'operator' => '=', 'value' => 'qux' ]
+      ]
+    ]);
+    $result = $transform->transform([]);
+    $this->assertEquals(333, $result['transformmodel_integer']);
+    $this->assertEquals($result['transformmodel_text'].'-join', $result['tjsample_text']);
   }
 
   /**
