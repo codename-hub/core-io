@@ -914,4 +914,39 @@ class modelTest extends abstractTransformTest
     $this->assertEquals(111, $result['transformmodel_integer']);
   }
 
+  /**
+   * Test Spec output (simple case)
+   */
+  public function testSpecification(): void {
+    $transform = $this->getTransform('model_result_all', [
+      'model'             => 'transformmodel',
+      'filter'            => [
+        [ 'field' => 'transformmodel_integer', 'operator' => '!=', 'value' => null ],
+        [ 'field' => 'transformmodel_integer', 'operator' => '!=', 'value' => [ 'source' => 'source', 'field' => 'source_key1' ] ]
+      ],
+      'filtercollection'  => [
+        'example' => [
+          'filters'         => [
+            [ 'field' => 'transformmodel_integer', 'operator' => '=', 'value' => 111 ],
+            [ 'field' => 'transformmodel_integer', 'operator' => '=', 'value' => [ 'source' => 'source', 'field' => 'source_key1' ] ]
+          ],
+          'group_operator'  => 'AND',
+          'conjunction'     => 'AND',
+        ],
+      ]
+    ]);
+
+    $this->assertEquals(
+      [
+        'type'    => 'transform',
+        'source'  => [
+          'model.transformmodel',
+          'source.source_key1',
+          'source.source_key1',
+        ]
+      ],
+      $transform->getSpecification()
+    );
+  }
+
 }
