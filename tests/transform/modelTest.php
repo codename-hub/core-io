@@ -191,6 +191,32 @@ class modelTest extends abstractTransformTest
   }
 
   /**
+   * Tests model_save with PKey (editing data)
+   */
+  public function testModelSaveWithPKey(): void {
+    $pseudoPipeline = new \codename\core\io\pipeline(null, []);
+    $pseudoPipeline->setDryRun(false);
+
+    $transform = $this->getTransform('model_save', [
+      'model' => 'transformmodel',
+      'data' => [
+        'source'    => 'source',
+        'field'     => 'model_data',
+      ]
+    ]);
+    $transform->setPipelineInstance($pseudoPipeline);
+    $result = $transform->transform([
+      'model_data'  => [
+        'transformmodel_id'       => 1,
+        'transformmodel_text'     => 'abc',
+        'transformmodel_integer'  => 123,
+      ]
+    ]);
+
+    $this->assertEquals(1, $result);
+  }
+
+  /**
    * [testModelSaveOnetime description]
    */
   public function testModelSaveOnetime(): void {
