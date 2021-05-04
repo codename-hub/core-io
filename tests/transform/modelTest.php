@@ -610,6 +610,86 @@ class modelTest extends abstractTransformTest
   }
 
   /**
+   * Tests for allow_null to be disabled by default
+   * in a transform_model_* filter
+   */
+  public function testModelFilterAllowNullDefaultDisabled(): void {
+    $this->createSampleTestData();
+    $transform = $this->getTransform('model_result_all', [
+      'model'   => 'transformmodel',
+      'filter'  => [
+        [
+          'field' => 'transformmodel_integer',
+          'operator' => '=',
+          'value' => [
+            'source'  => 'source',
+            'field'   => 'filter_value',
+          ]
+        ]
+      ]
+    ]);
+    $result = $transform->transform([
+      'filter_value' => null
+    ]);
+    $this->assertNull($result);
+    // required is implicitly false, errorstack must be empty
+    $this->assertEmpty($transform->getErrors());
+  }
+
+  /**
+   * [testModelFilterAllowNullDefaultDisabledRequired description]
+   */
+  public function testModelFilterAllowNullDefaultDisabledRequired(): void {
+    $this->createSampleTestData();
+    $transform = $this->getTransform('model_result_all', [
+      'model'   => 'transformmodel',
+      'filter'  => [
+        [
+          'field' => 'transformmodel_integer',
+          'operator' => '=',
+          'value' => [
+            'source'  => 'source',
+            'field'   => 'filter_value',
+          ]
+        ]
+      ],
+      'required' => true
+    ]);
+    $result = $transform->transform([
+      'filter_value' => null
+    ]);
+    $this->assertNull($result);
+    // required is implicitly false, errorstack must be empty
+    $this->assertNotEmpty($transform->getErrors());
+  }
+
+  /**
+   * [testModelFilterAllowNullWorks description]
+   */
+  public function testModelFilterAllowNullWorks(): void {
+    $this->createSampleTestData();
+    $transform = $this->getTransform('model_result_all', [
+      'model'   => 'transformmodel',
+      'filter'  => [
+        [
+          'field' => 'transformmodel_integer',
+          'operator' => '=',
+          'value' => [
+            'source'  => 'source',
+            'field'   => 'filter_value',
+            'allow_null' => true
+          ]
+        ]
+      ]
+    ]);
+    $result = $transform->transform([
+      'filter_value' => null
+    ]);
+    $this->assertCount(1, $result);
+    $this->assertEmpty($transform->getErrors());
+  }
+
+  /**
    * Tests basic query using a simple joined model.
    */
   public function testModelResultOneJoined(): void {
