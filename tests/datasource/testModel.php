@@ -103,7 +103,39 @@ class testModel extends base {
         'datasourceentry_integer'  => 'number_natural',
       ],
       'connection' => 'default'
-    ]);
+    ], function($schema, $model, $config) {
+      return new \codename\core\io\tests\datasource\model\datasourceentry([]);
+    });
+
+    static::createModel('datasourcetest', 'datasourceentryj', [
+      'field' => [
+        'datasourceentryj_id',
+        'datasourceentryj_created',
+        'datasourceentryj_modified',
+        'datasourceentryj_datasourceentry_id',
+        'datasourceentryj_text',
+      ],
+      'primary' => [
+        'datasourceentryj_id'
+      ],
+      'foreign' => [
+        'datasourceentryj_datasourceentry_id' => [
+          'schema'  => 'datasourcetest',
+          'model'   => 'datasourceentry',
+          'key'     => 'datasourceentry_id'
+        ],
+      ],
+      'datatype' => [
+        'datasourceentryj_id'                 => 'number_natural',
+        'datasourceentryj_created'            => 'text_timestamp',
+        'datasourceentryj_modified'           => 'text_timestamp',
+        'datasourceentryj_datasourceentry_id' => 'number_natural',
+        'datasourceentryj_text'               => 'text',
+      ],
+      'connection' => 'default'
+    ], function($schema, $model, $config) {
+      return new \codename\core\io\tests\datasource\model\datasourceentryj([]);
+    });
 
     static::architect('datasourcetest', 'codename', 'test');
   }
@@ -196,4 +228,124 @@ class testModel extends base {
     $datasource->setModel($model);
     $this->assertCount(3, $datasource);
   }
+
+  /**
+   * [testDatasourceModelComplexOne description]
+   */
+  public function testDatasourceModelComplexOne(): void {
+    $this->createTestData();
+    $datasource = new \codename\core\io\datasource\model([
+      'model'               => 'datasourceentry',
+      'join'                => [
+        [
+          'model' => 'datasourceentryj',
+        ],
+      ],
+      'virtualFieldResult'  => true,
+      'fields'              => [
+        'datasourceentry_text',
+        'datasourceentry_integer',
+      ],
+      'filter'              => [
+        [ 'field' => 'datasourceentry_integer', 'value' => null, 'operator' => '!=' ]
+      ],
+      'filtercollection'    => [
+        [
+          'filters' => [
+            [ 'field' => 'datasourceentry_integer', 'value' => 111, 'operator' => '=' ],
+            [ 'field' => 'datasourceentry_integer', 'value' => 222, 'operator' => '=' ],
+          ],
+          'group_operator' => 'OR',
+          'group_name' => 'datasourceentry_integer',
+        ]
+      ],
+      'query'               => [
+        'order' => [
+          [
+            "field" => "datasourceentry_integer",
+            "order" => "DESC"
+          ]
+        ]
+      ],
+    ]);
+
+    $res = [];
+    foreach($datasource as $d) {
+      $res[] = $d;
+    }
+    $this->assertEquals([
+      [
+        'datasourceentry_text'    => 'bar',
+        'datasourceentry_integer' => 222,
+      ],
+      [
+        'datasourceentry_text'    => 'foo',
+        'datasourceentry_integer' => 111,
+      ],
+    ], $res);
+  }
+
+  /**
+   * [testDatasourceModelComplexOne description]
+   */
+  public function testDatasourceModelComplexTwo(): void {
+    $this->createTestData();
+    $datasource = new \codename\core\io\datasource\model([
+      'model'               => 'datasourceentry',
+      'virtualFieldResult'  => true,
+      'fields'              => [
+        'datasourceentry_text',
+        'datasourceentry_integer',
+      ],
+      'query'               => [
+        'filter'              => [
+          [ 'field' => 'datasourceentry_integer', 'value' => [ 'option' => 'filter1' ], 'operator' => '!=' ]
+        ],
+        'filtercollection'    => [
+          [
+            'filters' => [
+              [ 'field' => 'datasourceentry_integer', 'value' => [ 'option' => 'filtercollection1' ], 'operator' => '=' ],
+              [ 'field' => 'datasourceentry_integer', 'value' => [ 'option' => 'filtercollection2' ], 'operator' => '=' ],
+            ],
+            'group_operator' => 'OR',
+            'group_name' => 'datasourceentry_integer',
+          ]
+        ],
+        'order' => [
+          [
+            "field" => "datasourceentry_integer",
+            "order" => "DESC"
+          ]
+        ]
+      ],
+    ]);
+
+    $pipline = new \codename\core\io\pipeline(null, []);
+    $pipline->setOptions([
+      'filter1'           => null,
+      'filtercollection1' => 111,
+      'filtercollection2' => 222,
+    ]);
+
+    $datasource->setPipelineInstance($pipline);
+
+    $res = [];
+    foreach($datasource as $d) {
+      $res[] = $d;
+    }
+
+    $this->assertEquals(3, $datasource->currentProgressPosition());
+    $this->assertEquals(2, $datasource->currentProgressLimit());
+    $this->assertEquals([
+      [
+        'datasourceentry_text'    => 'bar',
+        'datasourceentry_integer' => 222,
+      ],
+      [
+        'datasourceentry_text'    => 'foo',
+        'datasourceentry_integer' => 111,
+      ],
+    ], $res);
+  }
+
 }
