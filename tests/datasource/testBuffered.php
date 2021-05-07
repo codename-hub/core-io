@@ -104,8 +104,34 @@ class testBuffered extends \PHPUnit\Framework\TestCase
   * [testSetConfigPassthrough description]
   */
   public function testSetConfigPassthrough(): void {
-    // TODO, see below
-    $this->markTestIncomplete('TODO: test config passthrough and verify change using non-arraydata datasource');
+    $source = new \codename\core\io\datasource\csv(
+      __DIR__ . "/" . 'testcsv2.csv',
+      [
+        'autodetect_utf8_bom'   => true,
+        'skip_empty_rows'       => true,
+        'skip_rows'             => 11,      // wrong setting
+        'encoding'              => [ 'from' => 'UTF-8', 'to' => 'UTF-8' ],
+      ]
+    );
+
+    $buffered = new \codename\core\io\datasource\buffered($source, 999);
+
+    $buffered->setConfig([
+      'autodetect_utf8_bom'   => true,
+      'skip_empty_rows'       => true,
+      'skip_rows'             => 1,       // right setting
+      'encoding'              => [ 'from' => 'UTF-8', 'to' => 'UTF-8' ],
+    ]);
+
+    $i = 0;
+    foreach($buffered as $dataset) {
+      $i++;
+      $this->assertEquals($dataset['head0'], "l{$i}_d1");
+      $this->assertEquals($dataset['head1'], "l{$i}_d2");
+    }
+
+    $this->assertEquals(3, $i);
+
   }
 
 }
