@@ -238,7 +238,10 @@ class testModel extends base {
       'model'               => 'datasourceentry',
       'join'                => [
         [
-          'model' => 'datasourceentryj',
+          'model'   => 'datasourceentryj',
+          'fields'  => [
+            'datasourceentryj_id'
+          ],
         ],
       ],
       'virtualFieldResult'  => true,
@@ -277,10 +280,12 @@ class testModel extends base {
       [
         'datasourceentry_text'    => 'bar',
         'datasourceentry_integer' => 222,
+        'datasourceentryj_id'     => null,
       ],
       [
         'datasourceentry_text'    => 'foo',
         'datasourceentry_integer' => 111,
+        'datasourceentryj_id'     => null,
       ],
     ], $res);
   }
