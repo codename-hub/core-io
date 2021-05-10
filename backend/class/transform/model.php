@@ -36,6 +36,11 @@ abstract class model extends \codename\core\io\transform {
         $this->model->addCalculatedField($calculatedField['field'], $calculatedField['calculation']);
       }
     }
+    if(isset($this->config['order'])) {
+      foreach($this->config['order'] as $order) {
+        $this->model->addOrder($order['field'], $order['order']);
+      }
+    }
   }
 
   /**
