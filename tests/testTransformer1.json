@@ -1,0 +1,20 @@
+{
+  "__comment" : "testTransformer",
+  "mixins" : [
+  ],
+  "transform" : {
+    "static_true" : {
+      "type" : "value",
+      "config" : {
+        "value" : true
+      }
+    },
+    "static_false" : {
+      "type" : "value",
+      "internal" : true,
+      "config" : {
+        "value" : false
+      }
+    }
+  }
+}
