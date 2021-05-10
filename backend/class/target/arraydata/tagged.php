@@ -20,7 +20,7 @@ class tagged extends \codename\core\io\target\arraydata
      */
     public function store(array $data, ?array $tags = null) : bool
     {
-      if($this->finished) {
+      if($this->finished ?? false) {
         throw new exception('EXCEPTION_CORE_IO_TARGET_BUFFERED_ALREADY_FINISHED', exception::$ERRORLEVEL_ERROR);
       }
 
