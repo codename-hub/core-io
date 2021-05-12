@@ -70,7 +70,7 @@ abstract class file extends \codename\core\io\target\buffered
    * @return resource               [a file handle resource]
    */
   protected function getNewFileHandle(string $targetFilePath) {
-    $handle = fopen($targetFilePath, ($this->append ? 'a+' : 'w+'));
+    $handle = @fopen($targetFilePath, ($this->append ? 'a+' : 'w+'));
     if($handle === false) {
       throw new exception('CORE_IO_TARGET_BUFFERED_FILE_HANDLE_ERROR', exception::$ERRORLEVEL_ERROR, $targetFilePath);
     }
