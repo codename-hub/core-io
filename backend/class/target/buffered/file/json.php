@@ -134,7 +134,8 @@ class json extends \codename\core\io\target\buffered\file
     }
 
     if($this->splitCount && count($data) === 1) {
-      fwrite($handle, json_encode($data[0]));
+      $dataKeys = array_keys($data);
+      fwrite($handle, json_encode($data[$dataKeys[0]]));
     } else {
       fwrite($handle, json_encode($data));
     }
