@@ -125,7 +125,7 @@ class json extends \codename\core\io\target\buffered\file
 
     // NOTE: no elements path results in overridden final data
     if($this->template) {
-      $data = $template;
+      $data = $this->template;
     }
     if($this->templateElementsPath) {
       $data = \codename\core\io\helper\deepaccess::set($data, $this->templateElementsPath, $elements);
