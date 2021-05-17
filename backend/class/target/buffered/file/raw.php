@@ -68,7 +68,7 @@ class raw extends \codename\core\io\target\buffered\file {
       $this->paddingMode = STR_PAD_RIGHT;
     } else {
       // ERROR
-      throw new exception();
+      throw new exception('EXCEPTION_TARGET_BUFFERED_FILE_RAW_PADDING_MODE_NOT_SUPPORTED', exception::$ERRORLEVEL_ERROR);
     }
 
     $mapping = $this->getMapping();
@@ -155,7 +155,7 @@ class raw extends \codename\core\io\target\buffered\file {
             $value = mb_substr($value, 0, $length, 'UTF-8');
           } else {
             if(mb_strlen($value, 'UTF-8') > $length) {
-              throw new exception();
+              throw new exception('EXCEPTION_TARGET_BUFFERED_FILE_RAW_VALUE_TOO_LONG', exception::$ERRORLEVEL_ERROR, $value);
             }
           }
           $data[$rowIndex][$columnIndex] = $value;
