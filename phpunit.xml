@@ -27,5 +27,14 @@
     <testsuite name="process">
       <directory suffix=".php">tests/process</directory>
     </testsuite>
+    <testsuite name="helper">
+      <directory suffix=".php">tests/helper</directory>
+    </testsuite>
+    <testsuite name="validator">
+      <directory suffix=".php">tests/validator</directory>
+    </testsuite>
+    <testsuite name="value">
+      <directory suffix=".php">tests/value</directory>
+    </testsuite>
   </testsuites>
 </phpunit>
