@@ -21,6 +21,9 @@
     <testsuite name="transform">
       <directory suffix=".php">tests/transform</directory>
     </testsuite>
+    <testsuite name="pipeline">
+      <directory suffix=".php">tests/pipeline</directory>
+    </testsuite>
     <testsuite name="process">
       <directory suffix=".php">tests/process</directory>
     </testsuite>
