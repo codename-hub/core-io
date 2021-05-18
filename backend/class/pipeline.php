@@ -925,7 +925,7 @@ class pipeline implements \codename\core\io\transformerInterface
      * active PDO connections
      * for handling open transactions
      * on a per-databaseconnection basis
-     * @var |PDO
+     * @var \PDO[]
      */
     protected $activeConnections = [];
 
@@ -978,9 +978,26 @@ class pipeline implements \codename\core\io\transformerInterface
               $conn = $model->getConnection()->getConnection();
               if(!$conn->inTransaction()) {
                 // $conn->beginTransaction();
-                $conn->exec('SET foreign_key_checks = 0;');
-                // // $conn->exec('SET unique_checks = 0;');
-                $conn->exec('SET autocommit = 0;');
+
+                // SQLite:  PRAGMA foreign_keys = OFF;
+                // MySQL:   SET foreign_key_checks = 0;
+
+                // Determine driver via connection
+                $driver = $model->getConnection()->driver;
+
+                if($driver == 'mysql') {
+                  $conn->exec('SET foreign_key_checks = 0;');
+                  // $conn->exec('SET unique_checks = 0;'); // Disabled!
+                  $conn->exec('SET autocommit = 0;');
+                } else if($driver == 'sqlite') {
+                  // SQLite autocommit is handled automatically
+                  // by beginning, ending or rollback of a transaction
+                  $conn->exec('PRAGMA foreign_keys = OFF;');
+                } else {
+                  // Throw an exception to avoid uninitiated transaction run
+                  throw new exception('EXCEPTION_PIPELINE_BEGINTRANSACTIONS_UNSUPPORTED_CONNECTION_DRIVER', exception::$ERRORLEVEL_ERROR, $driver);
+                }
+
                 $this->activeConnections[] = $conn;
               }
             }
@@ -1004,7 +1021,23 @@ class pipeline implements \codename\core\io\transformerInterface
       foreach($this->activeConnections as $conn) {
         // transactions should have ended
         // $conn->commit();
-        $conn->exec('SET autocommit = 1;');
+
+        $driver = $conn->getAttribute(\PDO::ATTR_DRIVER_NAME);
+
+        if($driver == 'mysql') {
+          // Autocommit re-enabling on MySQL
+          $conn->exec('SET autocommit = 1;');
+          // CHANGED: wasn't commented-in before...
+          $conn->exec('SET foreign_key_checks = 1;');
+        } else if($driver == 'sqlite') {
+          // NOTE: For SQLite, we do not re-enable autocommit, as it is done per transaction
+          // Re-enable FKEY checks
+          $conn->exec('PRAGMA foreign_keys = ON;');
+        } else {
+          // error or skip?
+          // Throw an exception to avoid uninitiated transaction run
+          throw new exception('EXCEPTION_PIPELINE_ENDTRANSACTIONS_UNSUPPORTED_CONNECTION_DRIVER', exception::$ERRORLEVEL_ERROR, $driver);
+        }
       }
       $this->activeConnections = [];
     }
@@ -1016,7 +1049,20 @@ class pipeline implements \codename\core\io\transformerInterface
     protected function rollbackTransactions() {
       foreach($this->activeConnections as $conn) {
         $conn->rollback();
-        $conn->exec('SET autocommit = 1;');
+
+        if($conn->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'mysql') {
+          // Autocommit re-enabling on MySQL
+          $conn->exec('SET autocommit = 1;');
+          // CHANGED: wasn't commented-in before...
+          $conn->exec('SET foreign_key_checks = 1;');
+        } else if($conn->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'sqlite') {
+          // NOTE: For SQLite, we do not re-enable autocommit, as it is done per transaction
+          // Re-enable FKEY checks
+          $conn->exec('PRAGMA foreign_keys = ON;');
+        } else {
+          // Throw an exception to avoid rollback failure?
+          throw new exception('EXCEPTION_PIPELINE_ROLLBACKTRANSACTIONS_UNSUPPORTED_CONNECTION_DRIVER', exception::$ERRORLEVEL_ERROR, $driver);
+        }
       }
       $this->activeConnections = [];
     }
