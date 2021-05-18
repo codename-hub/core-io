@@ -999,6 +999,8 @@ class pipeline implements \codename\core\io\transformerInterface
                 }
 
                 $this->activeConnections[] = $conn;
+              } else {
+                throw new exception('EXCEPTION_PIPELINE_BEGINTRANSACTIONS_ALREADY_ACTIVE_TRANSACTION', exception::$ERRORLEVEL_ERROR);
               }
             }
           }

@@ -1,9 +1,6 @@
 <?php
 namespace codename\core\tests\pipeline;
 
-use codename\core\tests\base;
-use codename\core\tests\overrideableApp;
-
 /**
  * [pipelineModelTargetTest description]
  */
@@ -47,6 +44,20 @@ class pipelineModelTargetTest extends abstractPipelineTest {
     $pipeline->run();
 
     $this->assertEquals(3, $model->getCount());
+  }
+
+  /**
+   * [testPipelineAlreadyOpenTransactionWillFail description]
+   */
+  public function testPipelineAlreadyOpenTransactionWillFail(): void {
+    $this->expectException(\codename\core\exception::class);
+    $this->expectExceptionMessage('EXCEPTION_PIPELINE_BEGINTRANSACTIONS_ALREADY_ACTIVE_TRANSACTION');
+
+    $model = $this->getModel('pipelinemodel');
+    $transaction = new \codename\core\transaction('test', [ $model ]);
+    $transaction->start();
+
+    $this->testPipelineWriteToTargetModel();
   }
 
 }
