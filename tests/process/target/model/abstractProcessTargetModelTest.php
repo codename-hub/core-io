@@ -96,26 +96,13 @@ abstract class abstractProcessTargetModelTest extends base {
       ]
     ]);
 
-    static::createModel('processtest', 'processmodel', [
-      'field' => [
-        'processmodel_id',
-        'processmodel_created',
-        'processmodel_modified',
-        'processmodel_text'
-      ],
-      'primary' => [
-        'processmodel_id'
-      ],
-      'datatype' => [
-        'processmodel_id'       => 'number_natural',
-        'processmodel_created'  => 'text_timestamp',
-        'processmodel_modified' => 'text_timestamp',
-        'processmodel_text'     => 'text',
-      ],
-      'connection' => 'default'
-    ], function($schema, $model, $config) {
-      return new \codename\core\io\tests\process\target\model\model\processmodel([]);
-    });
+    static::createModel(
+      'processtest', 'processmodel',
+      \codename\core\io\tests\process\target\model\model\processmodel::$staticConfig,
+      function($schema, $model, $config) {
+        return new \codename\core\io\tests\process\target\model\model\processmodel([]);
+      }
+    );
 
     static::architect('processtest', 'codename', 'test');
   }
