@@ -1,9 +1,9 @@
 <?php
-namespace codename\core\tests\target;
+namespace codename\core\io\tests\target\model;
 
 use codename\core\tests\base;
 
-class modelTest extends base {
+class complexTest extends base {
 
   /**
    * [protected description]
@@ -59,7 +59,6 @@ class modelTest extends base {
           // pure in-memory sqlite.
           'default' => [
             'driver' => 'sqlite',
-            // 'database_file' => 'testmodel.sqlite',
             'database_file' => ':memory:',
           ],
         ],
@@ -91,15 +90,64 @@ class modelTest extends base {
       return new \codename\core\io\tests\target\model\testmodel([]);
     });
 
+    static::createModel(
+      'targettest', 'testmodelj',
+      \codename\core\io\tests\target\model\testmodelj::$staticConfig,
+      function($schema, $model, $config) {
+      return new \codename\core\io\tests\target\model\testmodelj([]);
+    });
+
     static::architect('targettest', 'codename', 'test');
+  }
+
+  /**
+   * [testGeneral description]
+   */
+  public function testGeneral(): void  {
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodel',
+        'join'    => [
+          [
+            'model'   => 'testmodelj',
+            'join'    => [],
+          ]
+        ],
+      ],
+      // default method fallback should be: save
+    ]);
+
+    $this->assertInstanceOf(\codename\core\model::class, $target->getModel());
+
+
+
+    // $target->store([
+    //   'testmodel_text' => 'simple'
+    // ]);
+    //
+    // $target->finish();
+    //
+    // $model = $this->getModel('testmodel');
+    // $res = $model
+    //   ->addFilter('testmodel_text', 'simple')
+    //   ->search()->getResult();
+    // $this->assertCount(1, $res);
   }
 
   /**
    * [testTargetStoreSimple description]
    */
   public function testTargetStoreSimple(): void  {
-    $target = new \codename\core\io\target\model('test', [
-      'model' => 'testmodel',
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodel',
+        'join'    => [
+          [
+            'model'   => 'testmodelj',
+            'join'    => [],
+          ]
+        ],
+      ],
       // default method fallback should be: save
     ]);
 
@@ -117,12 +165,57 @@ class modelTest extends base {
   }
 
   /**
+   * [testTargetStoreSimple description]
+   */
+  public function testTargetStoreSimpleVirtual(): void  {
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodel',
+        'join'    => [
+          [
+            'model'   => 'testmodelj',
+            'join'    => [],
+          ]
+        ],
+      ],
+      // default method fallback should be: save
+    ]);
+
+    $target->setVirtualStoreEnabled(true);
+    $this->assertTrue($target->getVirtualStoreEnabled());
+
+    $target->store([
+      'testmodel_text'  => 'simple',
+      'testmodelj_text' => 'simple',
+    ]);
+
+    $target->finish();
+
+    $result = $target->getVirtualStoreData();
+
+    $this->assertEquals([
+      [
+        'testmodel_text'  => 'simple',
+        'testmodelj_text' => 'simple',
+      ]
+    ], $result);
+  }
+
+  /**
    * [testTargetStoreByUnique description]
    */
   public function testTargetStoreByUnique(): void {
 
-    $target = new \codename\core\io\target\model('test', [
-      'model' => 'testmodel',
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodel',
+        'join'    => [
+          [
+            'model'   => 'testmodelj',
+            'join'    => [],
+          ]
+        ],
+      ],
       'method' => 'replace'
     ]);
 
@@ -162,8 +255,16 @@ class modelTest extends base {
 
     $this->expectException(\PDOException::class);
 
-    $target = new \codename\core\io\target\model('test', [
-      'model'   => 'testmodel',
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodel',
+        'join'    => [
+          [
+            'model'   => 'testmodelj',
+            'join'    => [],
+          ]
+        ],
+      ],
       'method'  => 'save'
     ]);
 
@@ -185,8 +286,16 @@ class modelTest extends base {
 
     $this->expectException(\PDOException::class);
 
-    $target = new \codename\core\io\target\model('test', [
-      'model'   => 'testmodel',
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodel',
+        'join'    => [
+          [
+            'model'   => 'testmodelj',
+            'join'    => [],
+          ]
+        ],
+      ],
       'method'  => 'save'
     ]);
 
@@ -206,8 +315,16 @@ class modelTest extends base {
    * [testTargetStoreReadUsingDatasource description]
    */
   public function testTargetStoreReadUsingDatasource(): void {
-    $target = new \codename\core\io\target\model('test', [
-      'model'   => 'testmodel',
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodel',
+        'join'    => [
+          [
+            'model'   => 'testmodelj',
+            'join'    => [],
+          ]
+        ],
+      ],
       'method'  => 'replace'
     ]);
 
