@@ -119,19 +119,6 @@ class complexTest extends base {
 
     $this->assertInstanceOf(\codename\core\model::class, $target->getModel());
 
-
-
-    // $target->store([
-    //   'testmodel_text' => 'simple'
-    // ]);
-    //
-    // $target->finish();
-    //
-    // $model = $this->getModel('testmodel');
-    // $res = $model
-    //   ->addFilter('testmodel_text', 'simple')
-    //   ->search()->getResult();
-    // $this->assertCount(1, $res);
   }
 
   /**
@@ -198,6 +185,141 @@ class complexTest extends base {
         'testmodel_text'  => 'simple',
         'testmodelj_text' => 'simple',
       ]
+    ], $result);
+  }
+
+  /**
+   * [testTargetReplaceStoreSimpleVirtual description]
+   */
+  public function testTargetReplaceStoreSimpleVirtual(): void  {
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodel',
+        'join'    => [
+          [
+            'model'   => 'testmodelj',
+            'join'    => [],
+          ]
+        ],
+      ],
+      'method'    => 'replace',
+    ]);
+
+    $target->setVirtualStoreEnabled(true);
+    $this->assertTrue($target->getVirtualStoreEnabled());
+
+    $target->store([
+      'testmodel_id'    => 1,
+      'testmodel_text'  => 'simple',
+      'testmodelj_text' => 'simple',
+    ]);
+
+    $target->finish();
+
+    $result = $target->getVirtualStoreData();
+
+    $this->assertEquals([
+      [
+        'testmodel_id'    => 1,
+        'testmodel_text'  => 'simple',
+        'testmodelj_text' => 'simple',
+      ]
+    ], $result);
+  }
+
+  /**
+   * [testTargetReplaceStoreSimpleWithoutUnique description]
+   */
+  public function testTargetReplaceStoreSimpleWithoutUnique(): void  {
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodelj',
+        'join'    => [
+        ],
+      ],
+      'method'    => 'replace',
+    ]);
+
+    $target->setVirtualStoreEnabled(true);
+    $this->assertTrue($target->getVirtualStoreEnabled());
+
+    $target->store([
+      'testmodelj_text' => 'simple',
+    ]);
+
+    $target->finish();
+
+    $result = $target->getVirtualStoreData();
+
+    $this->assertEquals([
+      [
+        'testmodelj_text' => 'simple',
+      ]
+    ], $result);
+  }
+
+  /**
+   * [testTargetStoreByUnique description]
+   */
+  public function testTargetStoreByUniqueVirtual(): void {
+
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodel',
+        'join'    => [
+          [
+            'model'   => 'testmodelj',
+            'join'    => [],
+          ]
+        ],
+      ],
+      'method' => 'replace'
+    ]);
+
+    $target->store([
+      'testmodel_text'          => 'unique_single1',
+      'testmodel_unique_single' => 'UNIQUE1',
+    ]);
+    $target->store([
+      'testmodel_text'          => 'unique_multi1',
+      'testmodel_unique_multi1' => 'UNIQUE_V1',
+      'testmodel_unique_multi2' => 'UNIQUE_V2',
+    ]);
+
+    $target->setVirtualStoreEnabled(true);
+    $this->assertTrue($target->getVirtualStoreEnabled());
+
+    $target->store([
+      'testmodel_text'          => 'unique_single2',
+      'testmodel_unique_single' => 'UNIQUE1',
+    ]);
+
+    $target->store([
+      'testmodel_text'          => 'unique_multi2',
+      'testmodel_unique_multi1' => 'UNIQUE_V1_',
+      'testmodel_unique_multi2' => 'UNIQUE_V2_',
+    ]);
+
+    $target->finish();
+
+    $model = $this->getModel('testmodel');
+
+    $res = $model->search()->getResult();
+    $this->assertCount(2, $res);
+
+    $result = $target->getVirtualStoreData();
+
+    $this->assertEquals([
+      [
+        'testmodel_text'          => 'unique_single2',
+        'testmodel_unique_single' => 'UNIQUE1',
+        'testmodel_id'            => 2,
+      ],
+      [
+        'testmodel_text'          => 'unique_multi2',
+        'testmodel_unique_multi1' => 'UNIQUE_V1_',
+        'testmodel_unique_multi2' => 'UNIQUE_V2_',
+      ],
     ], $result);
   }
 
