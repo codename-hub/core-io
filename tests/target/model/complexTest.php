@@ -189,6 +189,47 @@ class complexTest extends base {
   }
 
   /**
+   * [testTargetStoreChildrenSimpleVirtual description]
+   */
+  public function testTargetStoreChildrenSimpleVirtual(): void  {
+    $target = new \codename\core\io\target\model\complex('test', [
+      'structure' => [
+        'model'   => 'testmodelj',
+        'join'    => [
+          [
+            'model'   => 'testmodel',
+            'join'    => [],
+          ]
+        ],
+      ],
+      // default method fallback should be: save
+    ]);
+
+    $target->setVirtualStoreEnabled(true);
+    $this->assertTrue($target->getVirtualStoreEnabled());
+
+    $target->store([
+      'testmodelj_text'       => 'simple',
+      'testmodelj_testmodel'  => [
+        'testmodel_text'  => 'simple',
+      ],
+    ]);
+
+    $target->finish();
+
+    $result = $target->getVirtualStoreData();
+
+    $this->assertEquals([
+      [
+        'testmodelj_text'       => 'simple',
+        'testmodelj_testmodel'  => [
+          'testmodel_text'  => 'simple',
+        ],
+      ]
+    ], $result);
+  }
+
+  /**
    * [testTargetReplaceStoreSimpleVirtual description]
    */
   public function testTargetReplaceStoreSimpleVirtual(): void  {

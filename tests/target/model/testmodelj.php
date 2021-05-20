@@ -25,10 +25,17 @@ class testmodelj extends \codename\core\tests\sqlModel {
       'testmodelj_created',
       'testmodelj_modified',
       'testmodelj_testmodel_id',
+      'testmodelj_testmodel',
       'testmodelj_text',
     ],
     'primary' => [
       'testmodelj_id'
+    ],
+    'children' => [
+      'testmodelj_testmodel' => [
+        'type' => 'foreign',
+        'field' => 'testmodelj_testmodel_id',
+      ]
     ],
     'foreign' => [
       'testmodelj_testmodel_id' => [
@@ -42,6 +49,7 @@ class testmodelj extends \codename\core\tests\sqlModel {
       'testmodelj_created'      => 'text_timestamp',
       'testmodelj_modified'     => 'text_timestamp',
       'testmodelj_testmodel_id' => 'number_natural',
+      'testmodelj_testmodel'    => 'virtual',
       'testmodelj_text'         => 'text',
     ],
     'connection' => 'default'
