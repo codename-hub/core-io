@@ -1,0 +1,43 @@
+{
+  "info" : {
+    "name" : "testing pipeline"
+  },
+  "source" : {
+    "type" : "arraydata",
+    "config" : {}
+  },
+  "option" : {
+  },
+  "transform" : {
+    "example1" : {
+      "type" : "value",
+      "config" : {
+        "value" : "example1"
+      }
+    },
+    "example2" : {
+      "type" : "model_map_single",
+      "config" : {
+        "model" : "pipelinemodel",
+        "map" : "pipelinemodel_id"
+      }
+    },
+    "example3" : {
+      "type" : "get_value",
+      "config" : {
+        "source" : "source",
+        "field" : "example3"
+      }
+    }
+  },
+  "target" : {
+    "example" : {
+      "type" : "arraydata",
+      "mapping" : {
+        "example1" : { "type" : "transform", "field" : "example1" },
+        "example2" : { "type" : "transform", "field" : "example2" },
+        "example3" : { "type" : "transform", "field" : "example3" }
+      }
+    }
+  }
+}

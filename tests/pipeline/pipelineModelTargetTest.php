@@ -41,9 +41,14 @@ class pipelineModelTargetTest extends abstractPipelineTest {
 
     $pipeline->setDatasource($datasource);
     $pipeline->setDryRun(false);
+    $pipeline->setErrorstackEnabled(true);
     $pipeline->run();
 
     $this->assertEquals(3, $model->getCount());
+
+    $errorstack = $pipeline->getErrorstack();
+    $this->assertEmpty($errorstack->getErrors());
+    $this->assertInstanceOf(\codename\core\errorstack::class, $errorstack);
   }
 
   /**

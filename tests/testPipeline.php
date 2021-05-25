@@ -8,18 +8,101 @@ class testPipeline extends base
 {
 
   /**
+   * [protected description]
+   * @var bool
+   */
+  protected static $initialized = false;
+
+  /**
+   * @inheritDoc
+   */
+  public static function tearDownAfterClass(): void
+  {
+    parent::tearDownAfterClass();
+    static::$initialized = false;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  protected function tearDown(): void
+  {
+    $this->getModel('pipelinemodel')
+      ->addFilter('pipelinemodel_id', 0, '>')
+      ->delete();
+
+    overrideableApp::__setInstance('response', null);
+  }
+
+  /**
    * @inheritDoc
    */
   protected function setUp(): void
   {
-    parent::setUp();
+    $app = static::createApp();
+
     overrideableApp::__injectApp([
       'vendor' => 'codename',
       'app' => 'core-io',
       'namespace' => '\\codename\\core\\io'
     ]);
-    $app = static::createApp();
+
+    // Additional overrides to get a more complete app lifecycle
+    // and allow static global app::getModel() to work correctly
+    $app->__setApp('pipelinetest');
+    $app->__setVendor('codename');
+    $app->__setNamespace('\\codename\\core\\io\\tests\\pipeline');
+
     $app->getAppstack();
+
+    // avoid re-init
+    if(static::$initialized) {
+      return;
+    }
+
+    static::$initialized = true;
+
+    static::setEnvironmentConfig([
+      'test' => [
+        'database' => [
+          // NOTE: by default, we do these tests using
+          // pure in-memory sqlite.
+          'default' => [
+            'driver' => 'sqlite',
+            // 'database_file' => 'pipelinemodel.sqlite',
+            'database_file' => ':memory:',
+          ],
+        ],
+        'cache' => [
+          'default' => [
+            'driver' => 'memory'
+          ]
+        ],
+        'filesystem' =>[
+          'local' => [
+            'driver' => 'local',
+          ]
+        ],
+        'log' => [
+          'default' => [
+            'driver' => 'system',
+            'data' => [
+              'name' => 'dummy'
+            ]
+          ]
+        ],
+      ]
+    ]);
+
+    static::createModel(
+      'pipelinetest', 'pipelinemodel',
+      \codename\core\io\tests\pipeline\model\pipelinemodel::$staticConfig,
+      function($schema, $model, $config) {
+        return new \codename\core\io\tests\pipeline\model\pipelinemodel([]);
+      }
+    );
+
+    static::architect('pipelinetest', 'codename', 'test');
   }
 
   /**
@@ -98,6 +181,34 @@ class testPipeline extends base
   }
 
   /**
+   * [testPipelineDatasourcePipelineInstance description]
+   */
+  public function testPipelineDatasourcePipelineInstance(): void {
+    $datasource = new \codename\core\io\datasource\model();
+
+    $pipline = new \codename\core\io\pipeline(null, []);
+    $pipline->setDatasource($datasource);
+    $this->assertInstanceOf(\codename\core\io\datasource\model::class, $pipline->getDatasource());
+
+  }
+
+  /**
+   * [testPipelineCreateDatasourcePipelineInstance description]
+   */
+  public function testPipelineCreateDatasourcePipelineInstance(): void {
+    $pipline = new \codename\core\io\pipeline(null, [
+      'source'    => [
+        'type'    => 'model',
+        'config'  => [],
+      ],
+    ]);
+    $datasource = $pipline->createDatasource([]);
+    $pipline->setDatasource($datasource);
+    $this->assertInstanceOf(\codename\core\io\datasource\model::class, $pipline->getDatasource());
+
+  }
+
+  /**
    * [testPipelineDatasourceBuffered description]
    */
   public function testPipelineDatasourceBuffered(): void {
@@ -162,6 +273,60 @@ class testPipeline extends base
     $this->assertEquals(null, $pipline->getItemIndex());
     $this->assertEquals(null, $pipline->getStoredItemCount());
 
+  }
+
+  /**
+   * Test Spec output (simple case)
+   */
+  public function testSpecification(): void {
+    $pipline = new \codename\core\io\pipeline(__DIR__ . "/" . 'testPipeline2.json', []);
+
+    $this->assertEquals(
+      [
+        'target.example.example1' => [
+          'type'    => 'target.mapping',
+          'source'  => [ 'transform.example1' ],
+        ],
+        'target.example.example2' => [
+          'type'    => 'target.mapping',
+          'source'  => [ 'transform.example2' ],
+        ],
+        'target.example.example3' => [
+          'type'    => 'target.mapping',
+          'source'  => [ 'transform.example3' ],
+        ],
+        'target.example' => [
+          'type'    => 'target',
+          'source'  => [ 'target.example.example1', 'target.example.example2', 'target.example.example3' ],
+        ],
+        'transform.example1' => [
+          'type'    => 'transform',
+          'source'  => [  ],
+        ],
+        'transform.example2' => [
+          'type'    => 'transform',
+          'source'  => [ 'model.pipelinemodel' ],
+        ],
+        'transform.example3' => [
+          'type'    => 'transform',
+          'source'  => [ 'source.example3' ],
+        ],
+        'model.pipelinemodel' => [
+          'type'    => 'model',
+        ],
+        'source.example3' => [
+          'type'    => 'source',
+        ],
+        'erroneous.erroneous' => [
+          'type'    => 'erroneous',
+        ],
+        'erroneous.data' => [
+          'type'    => 'erroneous',
+        ],
+      ],
+      $pipline->getSpecification(),
+      json_encode($pipline->getSpecification())
+    );
   }
 
 }
