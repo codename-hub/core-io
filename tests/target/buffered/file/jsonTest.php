@@ -1,7 +1,7 @@
 <?php
 namespace codename\core\io\tests\target\buffered\file;
 
-use codename\core\tests\base;
+use codename\core\test\base;
 
 class jsonTest extends base
 {

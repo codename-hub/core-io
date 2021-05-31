@@ -1,7 +1,7 @@
 <?php
 namespace codename\core\io\tests\datasource;
 
-use codename\core\tests\base;
+use codename\core\test\base;
 
 class testModel extends base {
   /**

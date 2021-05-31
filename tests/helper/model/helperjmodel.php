@@ -6,7 +6,7 @@ namespace codename\core\io\tests\helper\model;
  * and enables freely defining and loading model configs
  * BTW: helperjmodel means "helpermodel join sample"
  */
-class helperjmodel extends \codename\core\tests\sqlModel {
+class helperjmodel extends \codename\core\test\sqlModel {
   /**
    * @inheritDoc
    */

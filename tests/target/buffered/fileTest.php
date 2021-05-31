@@ -1,7 +1,7 @@
 <?php
-namespace codename\core\tests\target\buffered;
+namespace codename\core\io\tests\target\buffered;
 
-use codename\core\tests\base;
+use codename\core\test\base;
 
 class fileTest extends base
 {

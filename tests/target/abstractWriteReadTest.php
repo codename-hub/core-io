@@ -1,7 +1,7 @@
 <?php
-namespace codename\core\tests\target;
+namespace codename\core\io\tests\target;
 
-use codename\core\tests\base;
+use codename\core\test\base;
 
 abstract class abstractWriteReadTest extends base {
 

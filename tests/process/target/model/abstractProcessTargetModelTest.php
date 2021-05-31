@@ -1,8 +1,8 @@
 <?php
-namespace codename\core\tests\process\target\model;
+namespace codename\core\io\tests\process\target\model;
 
-use codename\core\tests\base;
-use codename\core\tests\overrideableApp;
+use codename\core\test\base;
+use codename\core\test\overrideableApp;
 
 abstract class abstractProcessTargetModelTest extends base {
 

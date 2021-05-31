@@ -5,7 +5,7 @@ namespace codename\core\io\tests\target\model;
  * SQL Base model leveraging the new model servicing modules
  * and enables freely defining and loading model configs
  */
-class testmodel extends \codename\core\tests\sqlModel {
+class testmodel extends \codename\core\test\sqlModel {
   /**
    * @inheritDoc
    */

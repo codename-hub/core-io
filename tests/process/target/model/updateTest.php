@@ -1,5 +1,5 @@
 <?php
-namespace codename\core\tests\process\target\model;
+namespace codename\core\io\tests\process\target\model;
 
 /**
  * [updateTest description]

@@ -6,7 +6,7 @@ namespace codename\core\io\tests\transform\model;
  * and enables freely defining and loading model configs
  * BTW: tjsample means "transformmodel join sample"
  */
-class tjsample extends \codename\core\tests\sqlModel {
+class tjsample extends \codename\core\test\sqlModel {
   /**
    * @inheritDoc
    */

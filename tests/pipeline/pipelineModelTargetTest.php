@@ -1,5 +1,5 @@
 <?php
-namespace codename\core\tests\pipeline;
+namespace codename\core\io\tests\pipeline;
 
 /**
  * [pipelineModelTargetTest description]

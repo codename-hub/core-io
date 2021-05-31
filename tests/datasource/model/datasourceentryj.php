@@ -5,7 +5,7 @@ namespace codename\core\io\tests\datasource\model;
  * SQL Base model leveraging the new model servicing modules
  * and enables freely defining and loading model configs
  */
-class datasourceentryj extends \codename\core\tests\sqlModel {
+class datasourceentryj extends \codename\core\test\sqlModel {
   /**
    * @inheritDoc
    */

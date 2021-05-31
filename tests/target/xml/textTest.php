@@ -1,7 +1,7 @@
 <?php
 namespace codename\core\io\tests\target\xml;
 
-use codename\core\tests\base;
+use codename\core\test\base;
 
 class textTest extends base
 {

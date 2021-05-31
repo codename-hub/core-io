@@ -1,7 +1,7 @@
 <?php
-namespace codename\core\tests\target\buffered\file;
+namespace codename\core\io\tests\target\buffered\file;
 
-use codename\core\tests\target\abstractWriteReadTest;
+use codename\core\io\tests\target\abstractWriteReadTest;
 
 class rawWriteReadTest extends abstractWriteReadTest {
 

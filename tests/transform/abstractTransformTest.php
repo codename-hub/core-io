@@ -5,12 +5,12 @@ use codename\core\app;
 
 use codename\core\io\transformerInterface;
 
-use codename\core\tests\overrideableApp;
+use codename\core\test\overrideableApp;
 
 /**
  * [testRemap description]
  */
-abstract class abstractTransformTest extends \codename\core\tests\base
+abstract class abstractTransformTest extends \codename\core\test\base
   implements transformerInterface
 {
   /**

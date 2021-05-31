@@ -5,7 +5,7 @@ namespace codename\core\io\tests\transform\compare\model;
  * SQL Base model leveraging the new model servicing modules
  * and enables freely defining and loading model configs
  */
-class holidays extends \codename\core\tests\sqlModel {
+class holidays extends \codename\core\test\sqlModel {
   /**
    * @inheritDoc
    */

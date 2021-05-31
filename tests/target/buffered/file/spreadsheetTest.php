@@ -1,8 +1,8 @@
 <?php
 namespace codename\core\io\tests\target\buffered\file;
 
-use codename\core\tests\base;
-use codename\core\tests\overrideableApp;
+use codename\core\test\base;
+use codename\core\test\overrideableApp;
 
 class spreadsheetTest extends base
 {

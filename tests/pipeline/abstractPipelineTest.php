@@ -1,8 +1,8 @@
 <?php
-namespace codename\core\tests\pipeline;
+namespace codename\core\io\tests\pipeline;
 
-use codename\core\tests\base;
-use codename\core\tests\overrideableApp;
+use codename\core\test\base;
+use codename\core\test\overrideableApp;
 
 abstract class abstractPipelineTest extends base {
 

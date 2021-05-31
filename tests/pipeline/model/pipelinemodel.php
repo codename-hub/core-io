@@ -5,7 +5,7 @@ namespace codename\core\io\tests\pipeline\model;
  * SQL Base model leveraging the new model servicing modules
  * and enables freely defining and loading model configs
  */
-class pipelinemodel extends \codename\core\tests\sqlModel {
+class pipelinemodel extends \codename\core\test\sqlModel {
   /**
    * @inheritDoc
    */
