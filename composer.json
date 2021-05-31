@@ -18,7 +18,8 @@
       "phpoffice/phpspreadsheet" : "^1.1"
     },
     "require-dev" : {
-      "codename/core" : "*"
+      "phpunit/phpunit" : "^9.0",
+      "codename/core-test" : "*"
     },
     "autoload": {
       "psr-4": {
