@@ -246,7 +246,7 @@ class testPipeline extends base
    * [testPipelineDatasource description]
    */
   public function testPipelineDatasourceLoad(): void {
-    $pipline = new \codename\core\io\pipeline(__DIR__ . "/" . 'testPipeline.json', []);
+    $pipline = new \codename\core\io\pipeline('tests/testPipeline.json', []);
 
     $datasource = new \codename\core\io\datasource\arraydata();
     $datasource->setData([
@@ -279,7 +279,7 @@ class testPipeline extends base
    * Test Spec output (simple case)
    */
   public function testSpecification(): void {
-    $pipline = new \codename\core\io\pipeline(__DIR__ . "/" . 'testPipeline2.json', []);
+    $pipline = new \codename\core\io\pipeline('tests/testPipeline2.json', []);
 
     $this->assertEquals(
       [
