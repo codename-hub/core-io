@@ -171,6 +171,31 @@ class testCsv extends \PHPUnit\Framework\TestCase
     $this->assertEquals(3, $i);
   }
 
+  /**
+   * [testDatasourceCsvWindows1252Decoding description]
+   */
+  public function testDatasourceCsvWindows1252Decoding(): void {
+    $datasource = new \codename\core\io\datasource\csv(
+      __DIR__ . "/" . 'csv_windows1252_umlauts.csv',
+      [
+        'delimiter'             => ';',
+        'encoding'              => [ 'from' => 'Windows-1252', 'to' => 'UTF-8' ],
+      ]
+    );
+
+    $rows = [];
+    foreach($datasource as $key => $row) {
+      $rows[] = $row;
+    }
+
+    $this->assertEquals([
+      [ 'NormalColumn' => 'Ä', 'ColumnWithUmlautsÄüÖö' => '1' ],
+      [ 'NormalColumn' => 'Ü', 'ColumnWithUmlautsÄüÖö' => '2' ],
+      [ 'NormalColumn' => 'Ö', 'ColumnWithUmlautsÄüÖö' => '3' ],
+      [ 'NormalColumn' => 'ß', 'ColumnWithUmlautsÄüÖö' => '4' ],
+    ], $rows);
+  }
+
 }
 
 /**
