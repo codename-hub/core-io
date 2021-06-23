@@ -298,11 +298,15 @@ class csv extends \codename\core\io\datasource
               //read in heading
               $this->headings =  $this->current();
 
-              if($this->encoding) {
-                $this->headings = array_map(function($item) {
-                  return mb_convert_encoding($item, $this->encoding['to'], $this->encoding['from']);
-                }, $this->headings);
-              }
+              //
+              // NOTE: decoding is performed implicitly, above.
+              // No need for double-decoding, this corrupts data.
+              //
+              // if($this->encoding) {
+              //   $this->headings = array_map(function($item) {
+              //     return mb_convert_encoding($item, $this->encoding['to'], $this->encoding['from']);
+              //   }, $this->headings);
+              // }
 
               $this->index++;
               return $this->next();
