@@ -31,6 +31,14 @@ class dompdf extends \codename\core\io\export\pdf {
     $this->dompdf->set_option('isHtml5ParserEnabled', true);
     // set page size and orientation
     $this->dompdf->setPaper($this->config->getData('page_size'), $this->config->getData('page_orientation'));
+
+    if($chroot = $this->config->getData('chroot')) {
+      $this->dompdf->getOptions()->setChroot($chroot);
+    }
+
+    if($dpi = $this->config->getData('dpi')) {
+      $this->dompdf->set_option('dpi', $dpi);
+    }
   }
 
   /**
