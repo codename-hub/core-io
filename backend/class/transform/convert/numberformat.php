@@ -45,6 +45,46 @@ class numberformat extends \codename\core\io\transform\convert {
       $this->numberFormatter->setAttribute(\NumberFormatter::FRACTION_DIGITS, $this->config['fraction_digits']);
     }
 
+    if($this->numberFormatter && ($this->config['min_fraction_digits'] ?? null)) {
+      $this->numberFormatter->setAttribute(\NumberFormatter::MIN_FRACTION_DIGITS, $this->config['min_fraction_digits']);
+    }
+
+    if($this->numberFormatter && ($this->config['max_fraction_digits'] ?? null)) {
+      $this->numberFormatter->setAttribute(\NumberFormatter::MAX_FRACTION_DIGITS, $this->config['max_fraction_digits']);
+    }
+
+    if($this->numberFormatter && ($roundingModeStr = $this->config['rounding_mode'] ?? null)) {
+      $roundingMode = null;
+      switch($roundingModeStr) {
+        case 'ceiling':
+          $roundingMode = \NumberFormatter::ROUND_CEILING;
+          break;
+        case 'down':
+          $roundingMode = \NumberFormatter::ROUND_DOWN;
+          break;
+        case 'floor':
+          $roundingMode = \NumberFormatter::ROUND_FLOOR;
+          break;
+        case 'half_down':
+          $roundingMode = \NumberFormatter::ROUND_HALFDOWN;
+          break;
+        case 'half_even':
+        case 'symmetric': // Alias
+          $roundingMode = \NumberFormatter::ROUND_HALFEVEN;
+          break;
+        case 'half_up':
+        case 'financial': // Alias
+          $roundingMode = \NumberFormatter::ROUND_HALFUP;
+          break;
+        case 'up':
+          $roundingMode = \NumberFormatter::ROUND_UP;
+          break;
+        default:
+          throw new exception('INVALID_ROUNDING_MODE', exception::$ERRORLEVEL_ERROR, $roundingModeStr);
+      }
+      $this->numberFormatter->setAttribute(\NumberFormatter::ROUNDING_MODE, $roundingMode);
+    }
+
     if($this->numberFormatter && array_key_exists('grouping_separator_symbol',$this->config)) {
       $this->numberFormatter->setSymbol(\NumberFormatter::GROUPING_SEPARATOR_SYMBOL, $this->config['grouping_separator_symbol']);
     }
