@@ -6,6 +6,16 @@ use codename\core\io\helper\deepaccess;
 class testDeepaccess extends \PHPUnit\Framework\TestCase
 {
   /**
+   * Tests the availability of deepaccess in the core framework itself.
+   * NOTE: this CHANGED 2021-08-11, deepaccess is now in core, but we leave the core-io equivalent
+   * for backwards-compatibility reasons
+   */
+  public function testDeepaccessMovedToCore(): void {
+    $refClass = new \ReflectionClass(deepaccess::class);
+    $this->assertTrue($refClass->isSubclassOf(\codename\core\helper\deepaccess::class));
+  }
+
+  /**
    * [testDeepaccessNotInitializable description]
    */
   public function testDeepaccessNotInitializable(): void {
