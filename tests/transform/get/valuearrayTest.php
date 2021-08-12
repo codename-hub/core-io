@@ -69,6 +69,42 @@ class valuearrayTest extends \codename\core\io\tests\transform\abstractTransform
   }
 
   /**
+   * [testAllowNull description]
+   */
+  public function testAllowNull(): void {
+    $transform = $this->getTransform('get_valuearray', [
+      'elements'  => [
+        'country' => 'DE',
+        'zipcode' => [ 'source' => 'source', 'field' => 'example_zipcode_field' ],
+        'city'    => [ 'source' => 'source', 'field' => 'example_city_field' ],
+        'street'  => [ 'source' => 'source', 'field' => 'example_street_field', 'allow_null' => true ],
+        'houseno' => [ 'source' => 'source', 'field' => 'example_houseno_field', 'required' => true ],
+      ]
+    ]);
+    $result = $transform->transform([
+      'example_zipcode_field' => '01067',
+      'example_city_field'    => 'Dresden',
+      'example_street_field'  => null, // allowed, expect passthrough of NULL value.
+      'example_houseno_field' => null, // not allowed, key should not be present in result.
+    ]);
+
+    // Make sure it stays an array
+    $this->assertEquals([
+      'country' => 'DE',
+      'zipcode' => '01067',
+      'city'    => 'Dresden',
+      'street'  => null
+    ], $result );
+
+    // We will still receive one error for one key
+    $errors = $transform->getErrors();
+    $this->assertNotEmpty($errors);
+    $this->assertCount(1, $errors);
+    $this->assertEquals('GET_VALUEARRAY_MISSING_KEY', $errors[0]['__IDENTIFIER'] );
+    $this->assertEquals('TRANSFORM.0', $errors[0]['__CODE'] );
+  }
+
+  /**
    * Test Spec output (simple case)
    */
   public function testSpecification(): void {

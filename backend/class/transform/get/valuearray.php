@@ -25,7 +25,9 @@ class valuearray extends \codename\core\io\transform\get {
           ]);
           continue; // ??
         } else if($val === null) {
-          continue;
+          if(!($v['allow_null'] ?? false)) {
+            continue;
+          }
         }
         $arr[$k] = $val;
 
