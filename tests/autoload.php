@@ -45,3 +45,17 @@ if(file_exists($localAutoload)) {
 } else {
   die("ERROR: No local vendor/autoloader.php found. Please call \"composer dump-autoload\" in this directory." . chr(10) );
 }
+
+//
+// Special quirk for single-project unit testing
+// We need to override the homedir for this app
+// as the framework itself assumes it resides in composer's vendor dir
+//
+// Additionally, we need to do this every time the appstack gets initialized in the tests
+// and only if this app is used, somehow.
+//
+\codename\core\app::getHook()->add(\codename\core\app::EVENT_APP_APPSTACK_AVAILABLE, function() {
+  \codename\core\test\overrideableApp::__modifyAppstackEntry('codename', 'core-io', [
+    'homedir' => realpath(__DIR__.'/../'), // One dir up (project root)
+  ]);
+});
