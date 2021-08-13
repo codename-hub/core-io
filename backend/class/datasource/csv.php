@@ -5,8 +5,7 @@ use \codename\core\exception;
 /**
  * Datasource encapsulating CSV files
  */
-class csv extends \codename\core\io\datasource
-  implements \codename\enshared\staticFormConfigProviderInterface {
+class csv extends \codename\core\io\datasource {
 
   /**
    * [__construct description]
@@ -54,94 +53,6 @@ class csv extends \codename\core\io\datasource
     } else {
       // nothing? error?
     }
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static function getFormFieldConfigArrayStatic(array $data = []) : array
-  {
-    return [
-      [
-        'field_title' => 'Trennzeichen',
-        'field_name'  => 'delimiter',
-        'field_type'  => 'input',
-        //
-        // Default: ; (semi-colon)
-        //
-        'field_value' => ';'
-      ],
-      [
-        'field_title'     => 'Kopfzeile vorhanden?',
-        'field_name'      => 'headed',
-        'field_type'      => 'checkbox',
-        'field_datatype'  => 'boolean',
-        //
-        // Default: headed data (true)
-        //
-        'field_value'     => true
-      ],
-      [
-        'field_title'     => 'UTF8-BOM automatisch erkennen',
-        'field_name'      => 'autodetect_utf8_bom',
-        'field_type'      => 'checkbox',
-        'field_datatype'  => 'boolean',
-        //
-        // Default: false, legacy compatibility
-        //
-        'field_value'     => false
-      ],
-      [
-        'field_title'       => 'Leere Zeilen überspringen',
-        'field_description' => 'Aktiviert die Überprüfung und Überspringen von leeren Zeilen',
-        'field_name'      => 'skip_empty_rows',
-        'field_type'      => 'checkbox',
-        'field_datatype'  => 'boolean',
-        'field_value'     => false
-      ],
-      [
-        'field_title'     => 'Codierung',
-        'field_name'      => 'encoding',
-        'field_type'      => 'form',
-        'form'            => [
-          //
-          // TODO: provide available encodings as select, we may pre-select.
-          //
-          'config' => [ 'dummy' => true ],
-          'fields' => [
-            [
-              'field_title' => 'Codierung von',
-              'field_name'  => 'from',
-              'field_type'  => 'input',
-              //
-              // System default, Testing
-              //
-              'field_value' => 'ASCII'
-            ],
-            [
-              'field_title' => 'Codierung zu',
-              'field_name'  => 'to',
-              'field_type'  => 'input',
-              //
-              // System default, Testing
-              //
-              'field_value' => 'UTF-8'
-            ],
-          ],
-        ],
-        'field_value' => $data['encoding'] ?? [ 'from' => 'ASCII', 'to' => 'UTF-8' ] // see system default above!
-      ],
-      [
-        'field_title'     => 'Zeilen von oben überspringen',
-        'field_name'      => 'skip_rows',
-        'field_type'      => 'input',
-        'field_datatype'  => 'number_natural',
-        //
-        // Default: we're not skipping rows (0)
-        //
-        'field_value'     => 0
-      ]
-    ];
   }
 
   /**

@@ -7,8 +7,7 @@ namespace codename\core\io\datasource;
  * allows free/dynamic reconfiguration of mapping
  * before data is handed to the pipeline
  */
-class remap extends \codename\core\io\datasource
-  implements \codename\enshared\staticFormConfigProviderInterface {
+class remap extends \codename\core\io\datasource {
 
   /**
   * the underlying datasource
@@ -53,42 +52,6 @@ class remap extends \codename\core\io\datasource
 
     $this->sourceDataReplace = $this->config->get('replace') ?? false;
     $this->sourceDataKey = $this->config->get('source_data_key') ?? null;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public static function getFormFieldConfigArrayStatic(array $data = []) : array
-  {
-    return [
-      [
-        'field_title'     => 'Remap',
-        'field_name'      => 'remap',
-        'field_type'      => 'structure',
-        'field_datatype'  => 'structure',
-        'field_value'     => $data['remap'] ?? null
-      ],
-      [
-        'field_title'     => 'Replace',
-        'field_name'      => 'replace',
-        'field_type'      => 'checkbox',
-        'field_datatype'  => 'boolean',
-        //
-        // Default: false
-        //
-        'field_value'     => false
-      ],
-      [
-        'field_title'     => 'source_data_key',
-        'field_name'      => 'source_data_key',
-        'field_type'      => 'input',
-        'field_datatype'  => 'text',
-        //
-        // Default: null (no separate source data key)
-        //
-        'field_value'     => null
-      ]
-    ];
   }
 
   /**

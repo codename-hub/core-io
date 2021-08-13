@@ -24,6 +24,43 @@ class testRemap extends \PHPUnit\Framework\TestCase
       ]
     );
 
+    // rewind the datasources
+    $remappedDatasource->rewind();
+
+    $result = $remappedDatasource->current();
+    $this->assertEquals([
+      'newkey1' => 'abc',
+      'newkey2' => 'def',
+      'newkey3' => 'ghi',
+    ], $result);
+
+    $this->assertEquals('0', $remappedDatasource->currentProgressPosition());
+
+    $this->assertEquals('3', $remappedDatasource->currentProgressLimit());
+
+    $this->assertEquals('0', $remappedDatasource->key());
+
+    $this->assertTrue($remappedDatasource->valid());
+
+  }
+
+  /**
+   * Test function to be moved to enshared, when available.
+   */
+  public function testCsvStaticFormConfigProvider(): void {
+    $this->markTestIncomplete('Feature is to a different package.');
+    $datasource = new \codename\core\io\datasource\arraydata();
+    $datasource->setData($this->getTestData());
+    $remappedDatasource = new \codename\core\io\datasource\remap(
+      $datasource, [
+        'remap' => [
+          'oldkey1' => 'newkey1',
+          'oldkey2' => 'newkey2',
+          'oldkey3' => 'newkey3',
+        ]
+      ]
+    );
+
     $formFieldConfigArrayStatic = $remappedDatasource->getFormFieldConfigArrayStatic([]);
     $this->assertEquals([
       [
@@ -48,25 +85,6 @@ class testRemap extends \PHPUnit\Framework\TestCase
         'field_value'     => null
       ]
     ], $formFieldConfigArrayStatic);
-
-    // rewind the datasources
-    $remappedDatasource->rewind();
-
-    $result = $remappedDatasource->current();
-    $this->assertEquals([
-      'newkey1' => 'abc',
-      'newkey2' => 'def',
-      'newkey3' => 'ghi',
-    ], $result);
-
-    $this->assertEquals('0', $remappedDatasource->currentProgressPosition());
-
-    $this->assertEquals('3', $remappedDatasource->currentProgressLimit());
-
-    $this->assertEquals('0', $remappedDatasource->key());
-
-    $this->assertTrue($remappedDatasource->valid());
-
   }
 
   /**

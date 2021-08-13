@@ -489,7 +489,7 @@ class pipeline implements \codename\core\io\transformerInterface
             if($mapconfig['type'] == 'transform') {
 
               if(!isset($this->transforms[$mapconfig['field']])) {
-                throw new exception('EXCEPTION_ENWAREHOUSE_PIPELINE_MISSING_TRANSFORM', exception::$ERRORLEVEL_ERROR, $mapconfig['field']);
+                throw new exception('EXCEPTION_CORE_IO_PIPELINE_MISSING_TRANSFORM', exception::$ERRORLEVEL_ERROR, $mapconfig['field']);
               }
               $transformInstance = $this->transforms[$mapconfig['field']];
               $processed = $transformInstance->transform($data);
@@ -512,7 +512,7 @@ class pipeline implements \codename\core\io\transformerInterface
               $path = array_slice($mapconfig['field'], 1);
 
               if(!isset($this->transforms[$field])) {
-                throw new exception('EXCEPTION_ENWAREHOUSE_PIPELINE_MISSING_TRANSFORM', exception::$ERRORLEVEL_ERROR, $field);
+                throw new exception('EXCEPTION_CORE_IO_PIPELINE_MISSING_TRANSFORM', exception::$ERRORLEVEL_ERROR, $field);
               }
               $transformInstance = $this->transforms[$field];
               $transformed = $transformInstance->transform($data);

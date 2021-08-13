@@ -10,7 +10,16 @@ class testCsv extends \PHPUnit\Framework\TestCase
    */
   public function testCsvGeneral () {
     $datasource = new \codename\core\io\datasource\csv(__DIR__ . "/" . 'testcsv1.csv');
+    $this->assertEquals('0', $datasource->currentProgressPosition());
+    $this->assertEquals('31', $datasource->currentProgressLimit());
+  }
 
+  /**
+   * Test function to be moved to enshared, when available.
+   */
+  public function testCsvStaticFormConfigProvider(): void {
+    $this->markTestIncomplete('Feature is to a different package.');
+    $datasource = new \codename\core\io\datasource\csv(__DIR__ . "/" . 'testcsv1.csv');
     $formFieldConfigArrayStatic = $datasource->getFormFieldConfigArrayStatic([]);
     $this->assertEquals([
       [
@@ -72,11 +81,6 @@ class testCsv extends \PHPUnit\Framework\TestCase
         'field_value'     => 0
       ]
     ], $formFieldConfigArrayStatic);
-
-    $this->assertEquals('0', $datasource->currentProgressPosition());
-
-    $this->assertEquals('31', $datasource->currentProgressLimit());
-
   }
 
   /**

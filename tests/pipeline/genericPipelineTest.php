@@ -151,7 +151,7 @@ class genericPipelineTest extends abstractPipelineTest {
    */
   public function testPipelineFailsWithNonexistantTransform(): void {
     $this->expectException(\codename\core\exception::class);
-    $this->expectExceptionMessage('EXCEPTION_ENWAREHOUSE_PIPELINE_MISSING_TRANSFORM');
+    $this->expectExceptionMessage('EXCEPTION_CORE_IO_PIPELINE_MISSING_TRANSFORM');
 
     $this->executePipelineWithConfig([
       'source' => [
@@ -175,7 +175,7 @@ class genericPipelineTest extends abstractPipelineTest {
    */
   public function testPipelineFailsWithNonexistantTransformDeep(): void {
     $this->expectException(\codename\core\exception::class);
-    $this->expectExceptionMessage('EXCEPTION_ENWAREHOUSE_PIPELINE_MISSING_TRANSFORM');
+    $this->expectExceptionMessage('EXCEPTION_CORE_IO_PIPELINE_MISSING_TRANSFORM');
 
     $this->executePipelineWithConfig([
       'source' => [

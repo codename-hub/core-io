@@ -311,16 +311,5 @@ class spreadsheet extends \codename\core\io\target\buffered\file {
     if($prevThousandsSeparator) {
       \PhpOffice\PhpSpreadsheet\Shared\StringHelper::setThousandsSeparator($prevThousandsSeparator);
     }
-
-    // return $targetFilePath;
-
-    // $exporte = new \codename\enbase\helper\document;
-    // $exporte->createDocument(
-    //   $this->targetFilePath,
-    //   'test.xlsx',
-    //   'test',
-    //   null,
-    //   1
-    // );
   }
 }

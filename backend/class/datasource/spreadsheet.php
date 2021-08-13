@@ -6,8 +6,7 @@ use codename\core\exception;
 /**
  * [spreadsheet description]
  */
-class spreadsheet extends \codename\core\io\datasource
-  implements \codename\enshared\staticFormConfigProviderInterface  {
+class spreadsheet extends \codename\core\io\datasource {
 
   /**
    * [protected description]
@@ -152,74 +151,6 @@ class spreadsheet extends \codename\core\io\datasource
     $this->multisheet = $config['multisheet'] ?? false;
   }
 
-  /**
-   * @inheritDoc
-   */
-  public static function getFormFieldConfigArrayStatic(array $data = []) : array
-  {
-    return [
-      [
-        'field_title'     => 'Multisheet',
-        'field_name'      => 'multisheet',
-        'field_type'      => 'checkbox',
-        'field_datatype'  => 'boolean',
-        //
-        // Default: do not use multiple sheets as data input (true)
-        //
-        'field_value'     => false
-      ],
-      [
-        'field_title'     => 'Kopfzeile vorhanden?',
-        'field_name'      => 'headed',
-        'field_type'      => 'checkbox',
-        'field_datatype'  => 'boolean',
-        //
-        // Default: headed data (true)
-        //
-        'field_value'     => true
-      ],
-      [
-        'field_title'     => 'Kopfzeile in Zeile x',
-        'field_name'      => 'header_row',
-        'field_type'      => 'input',
-        'field_datatype'  => 'number_natural',
-        //
-        // Default: 1 (excel row index is counted from 1)
-        //
-        'field_value'     => 1
-      ],
-      [
-        'field_title'     => 'Spezifisches Sheet',
-        'field_name'      => 'custom_sheet_index',
-        'field_type'      => 'input',
-        'field_datatype'  => 'number_natural',
-        //
-        // Default: 1 (excel row index is counted from 1)
-        //
-        'field_value'     => null
-      ],
-      [
-        'field_title'     => 'Tabellenspaltennamen einbeziehen',
-        'field_name'      => 'include_spreadsheet_columns',
-        'field_type'      => 'checkbox',
-        'field_datatype'  => 'boolean',
-        //
-        // Default: do not include A, B, C, ... (true)
-        //
-        'field_value'     => false
-      ],
-      [
-        'field_title'     => 'Zeilen von oben überspringen',
-        'field_name'      => 'skip_rows',
-        'field_type'      => 'input',
-        'field_datatype'  => 'number_natural',
-        //
-        // Default: we're not skipping rows (0)
-        //
-        'field_value'     => 0
-      ]
-    ];
-  }
 
   /**
    * @inheritDoc

@@ -13,6 +13,22 @@ class testSpreadsheet extends \PHPUnit\Framework\TestCase {
   public function testSpreadsheetGeneral () {
     $datasource = new \codename\core\io\datasource\spreadsheet(__DIR__ . "/" . 'testSpreadsheet2.xlsx');
 
+    $this->assertEquals('0', $datasource->key());
+
+    $this->assertEquals('0', $datasource->currentProgressPosition());
+
+    $this->assertEquals('0', $datasource->currentProgressLimit());
+
+    $this->assertNull($datasource->setConfig([]));
+
+  }
+
+  /**
+   * Test function to be moved to enshared, when available.
+   */
+  public function testCsvStaticFormConfigProvider(): void {
+    $this->markTestIncomplete('Feature is to a different package.');
+    $datasource = new \codename\core\io\datasource\spreadsheet(__DIR__ . "/" . 'testSpreadsheet2.xlsx');
     $formFieldConfigArrayStatic = $datasource->getFormFieldConfigArrayStatic([]);
     $this->assertEquals([
       [
@@ -58,15 +74,6 @@ class testSpreadsheet extends \PHPUnit\Framework\TestCase {
         'field_value'     => 0
       ]
     ], $formFieldConfigArrayStatic);
-
-    $this->assertEquals('0', $datasource->key());
-
-    $this->assertEquals('0', $datasource->currentProgressPosition());
-
-    $this->assertEquals('0', $datasource->currentProgressLimit());
-
-    $this->assertNull($datasource->setConfig([]));
-
   }
 
   /**
