@@ -1,6 +1,8 @@
 <?php
 namespace codename\core\io\tests\transform;
 
+use codename\core\test\overrideableApp;
+
 class modelTest extends abstractTransformTest
 {
   /**
@@ -38,6 +40,13 @@ class modelTest extends abstractTransformTest
   protected function setUp(): void
   {
     $app = static::createApp();
+
+    // Don't forget to inject core-io
+    overrideableApp::__injectApp([
+      'vendor' => 'codename',
+      'app' => 'core-io',
+      'namespace' => '\\codename\\core\\io'
+    ]);
 
     // Additional overrides to get a more complete app lifecycle
     // and allow static global app::getModel() to work correctly
