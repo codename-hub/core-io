@@ -321,6 +321,16 @@ class complexTest extends base {
       'testmodel_text'          => 'unique_single1',
       'testmodel_unique_single' => 'UNIQUE1',
     ]);
+
+    //
+    // Get the ID just created
+    // for usage, further below.
+    //
+    $unique1Id = $this->getModel('testmodel')
+      ->addFilter('testmodel_unique_single', 'UNIQUE1')
+      ->search()->getResult()[0]['testmodel_id'];
+    $this->assertNotNull($unique1Id);
+
     $target->store([
       'testmodel_text'          => 'unique_multi1',
       'testmodel_unique_multi1' => 'UNIQUE_V1',
@@ -354,7 +364,7 @@ class complexTest extends base {
       [
         'testmodel_text'          => 'unique_single2',
         'testmodel_unique_single' => 'UNIQUE1',
-        'testmodel_id'            => 2,
+        'testmodel_id'            => $unique1Id,
       ],
       [
         'testmodel_text'          => 'unique_multi2',

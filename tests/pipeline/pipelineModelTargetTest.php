@@ -64,12 +64,14 @@ class pipelineModelTargetTest extends abstractPipelineTest {
       $this->testPipelineWriteToTargetModel();
     } catch (\codename\core\exception $e) {
       $failed = true;
+
+      // still complete/end the transaction
+      // otherwise other tests might fail
+      $transaction->end();
+
       $this->assertEquals('EXCEPTION_PIPELINE_BEGINTRANSACTIONS_ALREADY_ACTIVE_TRANSACTION', $e->getMessage());
     }
 
-    // still complete/end the transaction
-    // otherwise other tests might fail
-    $transaction->end();
 
     // We expect this to not complete
     if(!$failed) {

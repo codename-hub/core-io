@@ -26,6 +26,17 @@ abstract class abstractProcessTargetModelTest extends base {
    */
   protected function tearDown(): void
   {
+    // try and rollback any existing transaction
+    try {
+      // if(overrideableApp::getDb()->getConnection()->inTransaction()) {
+      // }
+      overrideableApp::getDb()->getConnection()->rollBack();
+    } catch (\PDOException $e) {
+      if($e->getMessage() != 'There is no active transaction') {
+        throw $e;
+      }
+    }
+
     $this->getModel('processmodel')
       ->addFilter('processmodel_id', 0, '>')
       ->delete();

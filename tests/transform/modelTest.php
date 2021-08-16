@@ -263,6 +263,12 @@ class modelTest extends abstractTransformTest
   public function testModelSaveWithPKey(): void {
     $this->createSampleTestData();
 
+    // Pre-define target id to operate on.
+    $targetId = $this->getModel('transformmodel')
+      ->addFilter('transformmodel_text', 'bar')
+      ->search()->getResult()[0]['transformmodel_id'];
+    $this->assertNotNull($targetId);
+
     $pseudoPipeline = new \codename\core\io\pipeline(null, []);
     $pseudoPipeline->setDryRun(false);
 
@@ -276,22 +282,22 @@ class modelTest extends abstractTransformTest
     $transform->setPipelineInstance($pseudoPipeline);
     $result = $transform->transform([
       'model_data'  => [
-        'transformmodel_id'       => 2,
+        'transformmodel_id'       => $targetId,
         'transformmodel_text'     => 'abc',
         'transformmodel_integer'  => 123,
       ]
     ]);
 
-    $this->assertEquals(2, $result, print_r($result, true));
+    $this->assertEquals($targetId, $result, print_r($result, true));
 
     $dataset = $this->getModel('transformmodel')
       ->hideAllFields()
       ->addField('transformmodel_id')
       ->addField('transformmodel_text')
       ->addField('transformmodel_integer')
-      ->load(2);
+      ->load($targetId);
     $this->assertEquals([
-      'transformmodel_id'       => 2,
+      'transformmodel_id'       => $targetId,
       'transformmodel_text'     => 'abc',
       'transformmodel_integer'  => 123,
     ], $dataset);
