@@ -36,6 +36,92 @@ class csvTest extends base
   /**
    * [testEnclosure description]
    */
+  public function testPartialWriteouts(): void {
+
+    $target = new \codename\core\io\target\buffered\file\csv('csv_test_partial_writeouts', [
+      'delimiter'   => ';',
+      'buffer_size' => 2,
+      'config' => [
+      ],
+      'mapping' => [
+        'key1' => [  ],
+        'key2' => [  ],
+        'key3' => [  ],
+        'key4' => [  ],
+      ]
+    ]);
+
+    $samples = $this->getSampleData();
+    foreach($samples as $sample) {
+      $target->store($sample);
+    }
+    $target->finish();
+
+    $files = $target->getFileResultArray();
+    $this->assertCount(1, $files);
+
+    $filepath = $files[0]->get();
+    $datasource = new \codename\core\io\datasource\csv($filepath, [
+      'delimiter' => ';',
+      'autodetect_utf8_bom' => true,
+    ]);
+    $res = [];
+    foreach($datasource as $r) {
+      $res[] = $r;
+    }
+
+    unlink($filepath);
+
+    $this->assertEquals($samples, $res);
+  }
+
+  /**
+   * [testPartialWriteoutsWithSplitting description]
+   */
+  public function testPartialWriteoutsWithSplitting(): void {
+
+    $target = new \codename\core\io\target\buffered\file\csv('csv_test_partial_writeouts', [
+      'delimiter'   => ';',
+      'buffer_size' => 2,
+      'split_count' => 3,
+      'config' => [
+      ],
+      'mapping' => [
+        'key1' => [  ],
+        'key2' => [  ],
+        'key3' => [  ],
+        'key4' => [  ],
+      ]
+    ]);
+
+    $samples = $this->getSampleData();
+    foreach($samples as $sample) {
+      $target->store($sample);
+    }
+    $target->finish();
+
+    $files = $target->getFileResultArray();
+
+    $this->assertCount(1, $files);
+
+    $filepath = $files[0]->get();
+    $datasource = new \codename\core\io\datasource\csv($filepath, [
+      'delimiter' => ';',
+      'autodetect_utf8_bom' => true,
+    ]);
+    $res = [];
+    foreach($datasource as $r) {
+      $res[] = $r;
+    }
+
+    unlink($filepath);
+
+    $this->assertEquals($samples, $res);
+  }
+
+  /**
+   * [testEnclosure description]
+   */
   public function testEnclosure(): void {
 
     $target = new \codename\core\io\target\buffered\file\csv('csv_test', [

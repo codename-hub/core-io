@@ -96,28 +96,87 @@ class csv extends \codename\core\io\target\buffered\file {
    */
   const UTF8_BOM = "\xEF\xBB\xBF"; // chr(239) . chr(187) . chr(191);
 
+  /**
+   * Array of currently used file handles
+   * @var array
+   */
+  protected $filesCreated = [];
+
+  /**
+   * Handle of currently opened file, if any.
+   * @var resource|null
+   */
+  protected $currentFileHandle = null;
+
+  /**
+   * This target supports Partial Writeouts (buffer flushing)
+   * @var bool
+   */
+  const SupportsPartialWriteout = true;
 
   /**
    * @inheritDoc
    */
   protected function storeBufferedData()
   {
-    // split the array
-
     $dataChunks = [];
-    $tagsChunks = [];
 
-    if($this->splitCount && (count($this->bufferArray) > $this->splitCount)) {
-      // we have to split at least one time
-      $dataChunks = array_chunk($this->bufferArray, $this->splitCount);
-      $tagsChunks = array_chunk($this->tagsArray, $this->splitCount);
+    $dataChunkIndexOffset = 0;
+    $dataChunkCountOffset = 0;
 
+    if(static::SupportsPartialWriteout && $this->bufferSize) {
+      // By default, we target only one file (index 0)
+      if($this->splitCount) {
+        // if splitting, determine current starting data chunk index
+        // WARNING: (int) cast required, as floor outputs a float!
+        $dataChunkIndexOffset = (int)floor(($this->currentStoredCount - count($this->bufferArray)) / $this->splitCount);#
+      }
+
+      // current count of elements in being-worked-on chunk
+      // (if any; zero if not buffering)
+      if($this->splitCount) {
+        $dataChunkCountOffset = ($this->currentStoredCount - count($this->bufferArray)) % $this->splitCount;
+      } else {
+        $dataChunkCountOffset = 0;
+      }
+
+      if($dataChunkCountOffset > 0) {
+        $partialChunkLeftoverSize = 0;
+        // leftover space in current chunk
+        if($this->splitCount) {
+          $partialChunkLeftoverSize = $this->splitCount - $dataChunkCountOffset;
+        }
+
+        // first chunk, partial.
+        if($partialChunkLeftoverSize > 0) {
+          $dataChunks[] = array_slice($this->bufferArray, 0, $partialChunkLeftoverSize);
+        }
+
+        // more chunks, if applicable
+        $moreChunkableData = array_slice($this->bufferArray, $partialChunkLeftoverSize);
+        if(!empty($moreChunkableData)) {
+          $dataChunks = array_merge(
+            $dataChunks,
+            array_chunk($moreChunkableData, $this->splitCount)
+          );
+        }
+      } else {
+        if($this->splitCount && (count($this->bufferArray) > $this->splitCount)) {
+          // we have to split at least one time
+          $dataChunks = array_chunk($this->bufferArray, $this->splitCount);
+        } else {
+          $dataChunks = [ $this->bufferArray ];
+        }
+      }
     } else {
-      $dataChunks = [ $this->bufferArray ];
-      $tagsChunks = [ $this->tagsArray ];
-    }
 
-    $resultObjects = [];
+      if($this->splitCount && (count($this->bufferArray) > $this->splitCount)) {
+        // we have to split at least one time
+        $dataChunks = array_chunk($this->bufferArray, $this->splitCount);
+      } else {
+        $dataChunks = [ $this->bufferArray ];
+      }
+    }
 
     foreach ($dataChunks as $index => $dataChunk) {
 
@@ -126,52 +185,96 @@ class csv extends \codename\core\io\target\buffered\file {
         continue;
       }
 
-      $tagsChunk = $tagsChunks[$index];
+      $append = false;
 
-      // create a new file handle?
-      $handle = null;
+      if(count($this->filesCreated) === ($index + $dataChunkIndexOffset + 1)) {
+        //
+        // use currently open file handle
+        // target chunk is current chunk
+        //
+        if($this->currentFileHandle) {
+          // continue to use this file handle
+          $append = true;
+        } else {
+          throw new exception('MAJOR_FAULT_TARGET_FILEHANDLES_INVALID_OFFSET', exception::$ERRORLEVEL_FATAL);
+        }
+      } else {
 
-      $path = $this->getNewFilePath();
-      $handle = $this->getNewFileHandle($path);
+        // Close current file handle
+        if($this->currentFileHandle) {
+          // further checks...? Out-of-bounds?
+          fclose($this->currentFileHandle);
+          $this->currentFileHandle = null;
+        }
 
-      $this->internalStoreBufferedData($handle, $dataChunk);
-
-      if(!$tagsChunk) {
-        // fill with empty array, if not set
-        $tagsChunk = array_fill(0, count($dataChunk), []);
+        // create a new file handle.
+        $path = $this->getNewFilePath();
+        $this->currentFileHandle = $this->getNewFileHandle($path);
+        $this->filesCreated[] = $path;
       }
 
-      foreach($tagsChunk as &$tagsElement) {
-        // force csv extension in tag
-        $tagsElement['file_extension'] = 'csv';
+      $this->internalStoreBufferedData($this->currentFileHandle, $dataChunk, $append);
+    }
 
-        if(count($dataChunks) > 1) {
-          // override filename with chunk number
-          if($addendum = $tagsElement['file_name_add'] ?? ('_'.($index+1))) {
-            // CHANGED 2021-04-30: we now fallback to an empty string as base filename
-            // if nothing provided.
-            $tagsElement['file_name'] = ($tagsElement['file_name'] ?? '') . $addendum;
+
+    //
+    // Finalize, tag and create result file path array
+    //
+    if($this->finished) {
+
+      // Close the remaining open file handle.
+      if($this->currentFileHandle) {
+        fclose($this->currentFileHandle);
+        $this->currentFileHandle = null;
+      }
+
+      $tagsChunks = [];
+
+      // aggregate tags chunks, if applicable
+      if($this->splitCount && ($this->currentStoredCount > $this->splitCount)) {
+        $tagsChunks = array_chunk($this->tagsArray, $this->splitCount);
+      } else {
+        $tagsChunks = [ $this->tagsArray ];
+      }
+
+      foreach($this->filesCreated as $index => $path) {
+
+        $tagsChunk = $tagsChunks[$index] ?? null;
+
+        // if(!$tagsChunk) {
+        //   // fill with empty array, if not set
+        //   $tagsChunk = array_fill(0, count($dataChunk), []);
+        // }
+
+        if($tagsChunk) {
+          foreach($tagsChunk as &$tagsElement) {
+            // force csv extension in tag
+            $tagsElement['file_extension'] = 'csv';
+
+            if(count($tagsChunks) > 1) {
+              // override filename with chunk number
+              if($addendum = $tagsElement['file_name_add'] ?? ('_'.($index+1))) {
+                // CHANGED 2021-04-30: we now fallback to an empty string as base filename
+                // if nothing provided.
+                $tagsElement['file_name'] = ($tagsElement['file_name'] ?? '') . $addendum;
+              }
+            }
           }
+          $resultObjects[] = new \codename\core\io\value\text\fileabsolute\tagged($path, $tagsChunk);
+        } else {
+          $resultObjects[] = new \codename\core\value\text\fileabsolute($path);
         }
       }
 
-      if($tagsChunk) {
-        $resultObjects[] = new \codename\core\io\value\text\fileabsolute\tagged($path, $tagsChunk);
-      } else {
-        $resultObjects[] = new \codename\core\value\text\fileabsolute($path, $tagsChunk);
-      }
+      $this->fileResults = $resultObjects;
     }
-
-    $this->fileResults = $resultObjects;
   }
 
   /**
    * @inheritDoc
    */
-  protected function internalStoreBufferedData($handle, $bufferArray)
+  protected function internalStoreBufferedData($handle, $bufferArray, $append = false)
   {
-    // $handle = $this->getFileHandle();
-
     $keys = null;
     if($this->numericIndexes) {
       $keys = [];
@@ -206,35 +309,42 @@ class csv extends \codename\core\io\target\buffered\file {
     }
 
     //
-    // We're relying on the fact
-    // we're using UTF-8 for almost everything
-    // in our system.
+    // If appending, do not write BOM or headers
+    // otherwise, we writeout this stuff, if configured to do so.
     //
-    if($this->encoding === 'UTF-8') {
-      if($this->encodingUtf8BOM) {
-        //
-        // write a UTF-8 BOM
-        //
-        fwrite($handle, self::UTF8_BOM);
+    if(!$append) {
+      //
+      // We're relying on the fact
+      // we're using UTF-8 for almost everything
+      // in our system.
+      //
+      if($this->encoding === 'UTF-8') {
+        if($this->encodingUtf8BOM) {
+          //
+          // write a UTF-8 BOM
+          //
+          fwrite($handle, self::UTF8_BOM);
+        }
+      } else if($this->encoding) {
+        if(!in_array($this->encoding, [ 'UTF-8', 'ISO-8859-1', 'ASCII', 'Windows-1252' ])) {
+          // change encoding?
+          throw new exception('EXCEPTION_TARGET_BUFFERED_FILE_CSV_UNSUPPORTED_REENCODE', exception::$ERRORLEVEL_ERROR, $this->encoding);
+        }
       }
-    } else if($this->encoding) {
-      if(!in_array($this->encoding, [ 'UTF-8', 'ISO-8859-1', 'ASCII', 'Windows-1252' ])) {
-        // change encoding?
-        throw new exception('EXCEPTION_TARGET_BUFFERED_FILE_CSV_UNSUPPORTED_REENCODE', exception::$ERRORLEVEL_ERROR, $this->encoding);
+
+      $headings = $keys;
+      if($this->encoding) {
+        foreach($headings as &$str) {
+          $str = mb_convert_encoding($str, $this->encoding, 'UTF-8');
+        }
+      }
+      if($this->enclosure === null) {
+        fputs($handle, implode($this->delimiter, $headings).$this->lineBreak);
+      } else {
+        fputcsv($handle, $headings, $this->delimiter, $this->enclosure, $this->escapeChar);
       }
     }
 
-    $headings = $keys;
-    if($this->encoding) {
-      foreach($headings as &$str) {
-        $str = mb_convert_encoding($str, $this->encoding, 'UTF-8');
-      }
-    }
-    if($this->enclosure === null) {
-      fputs($handle, implode($this->delimiter, $headings).$this->lineBreak);
-    } else {
-      fputcsv($handle, $headings, $this->delimiter, $this->enclosure, $this->escapeChar);
-    }
 
     if($this->numericIndexes) {
       foreach($bufferArray as $buffered) {
@@ -272,6 +382,9 @@ class csv extends \codename\core\io\target\buffered\file {
       }
     }
 
-    fclose($handle);
+    //
+    // WARNING: do not close file handle here.
+    // CHANGED 2021-08-18: moved to storeBufferedData, for appending data.
+    // fclose($handle);
   }
 }
