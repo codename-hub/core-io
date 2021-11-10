@@ -214,7 +214,7 @@ class pipeline
       case 'text_timestamp':
         $returnval['php_type'] = 'object';
         $returnval['php_class'] = \DateTimeImmutable::class;
-        $returnval['datetime_format'] = \jocoon\parquet\data\DateTimeFormat::DateAndTime;
+        $returnval['datetime_format'] = \codename\parquet\data\DateTimeFormat::DateAndTime;
 
         // TODO: prefixes, if recursion?
         $transformField = $field.'_to_dti';
@@ -234,7 +234,7 @@ class pipeline
       case 'text_date':
         $returnval['php_type'] = 'object';
         $returnval['php_class'] = \DateTimeImmutable::class;
-        $returnval['datetime_format'] = \jocoon\parquet\data\DateTimeFormat::Date;
+        $returnval['datetime_format'] = \codename\parquet\data\DateTimeFormat::Date;
         // TODO extra data
 
         // TODO: prefixes, if recursion?

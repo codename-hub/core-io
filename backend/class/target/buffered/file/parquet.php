@@ -3,14 +3,14 @@ namespace codename\core\io\target\buffered\file;
 
 use codename\core\exception;
 
-use jocoon\parquet\ParquetWriter;
-use jocoon\parquet\CompressionMethod;
+use codename\parquet\ParquetWriter;
+use codename\parquet\CompressionMethod;
 
-use jocoon\parquet\data\Schema;
-use jocoon\parquet\data\DataField;
-use jocoon\parquet\data\DataColumn;
-use jocoon\parquet\data\DateTimeDataField;
-use jocoon\parquet\data\DecimalDataField;
+use codename\parquet\data\Schema;
+use codename\parquet\data\DataField;
+use codename\parquet\data\DataColumn;
+use codename\parquet\data\DateTimeDataField;
+use codename\parquet\data\DecimalDataField;
 
 class parquet extends \codename\core\io\target\buffered\file
 {

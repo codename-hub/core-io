@@ -3,7 +3,7 @@ namespace codename\core\io\datasource;
 
 use codename\core\exception;
 
-use jocoon\parquet\ParquetReader;
+use codename\parquet\ParquetReader;
 
 class parquet extends \codename\core\io\datasource
 {
@@ -119,7 +119,7 @@ class parquet extends \codename\core\io\datasource
    */
   public function current()
   {
-    return $this->currentRowGroupData[$this->currentIndex];
+    return $this->currentRowGroupData[$this->currentIndex] ?? null;
   }
 
   /**
