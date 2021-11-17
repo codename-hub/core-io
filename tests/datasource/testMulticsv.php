@@ -97,31 +97,4 @@ class testMulticsv extends \PHPUnit\Framework\TestCase
     $this->assertEquals(9, $i);
   }
 
-
-  public function testImport()
-  {
-      /*
-      $import = new \codename\core\io\import('config/import/example_import.json');
-
-      $import->setDatasource('source1', new \codename\core\io\datasource\csv(__DIR__."/"."test1.csv", false));
-      $import->setDatasource('source2', new \codename\core\io\datasource\csv(__DIR__."/"."test2.csv", false));
-
-      $import->setDatasource('source3'  , new \codename\core\io\datasource\multicsv(
-        [__DIR__."/"."sequence0.csv",
-        __DIR__."/"."sequence1.csv",
-        __DIR__."/"."sequence2.csv"]
-      ));
-      */
-      $config = new \codename\core\config\json(__DIR__ . '/test1.json');
-
-
-
-      //$import->setTarget('target', )
-
-     //todo: manage where and when dataflows
-    /*
-
-     */
-  }
-
 }
