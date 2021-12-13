@@ -36,7 +36,7 @@ class parquet extends \codename\core\io\target\buffered\file
           $this->compression = CompressionMethod::Snappy;
           break;
         default:
-          throw new exception('Invalid compression method');
+          throw new \Exception('Invalid compression method');
       }
     }
 
