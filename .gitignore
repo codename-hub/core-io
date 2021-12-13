@@ -4,3 +4,4 @@
 .phpunit
 auth.json
 composer.lock
+studio.json
