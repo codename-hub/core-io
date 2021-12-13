@@ -66,7 +66,6 @@ class regex extends \codename\core\io\transform
         $this->errorstack->addError('REGEX_ERROR', 0, [
           'config'  => $this->config,
           'value'   => $value,
-          'params'  => $params
         ]);
         return null;
       }

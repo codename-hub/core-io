@@ -185,54 +185,6 @@ abstract class target {
   }
 
   /**
-   * [matches description]
-   * @param  array $data [description]
-   * @return bool        [description]
-   */
-  public function matches(array $data) : bool {
-
-    throw new exception('OBSOLETE');
-
-    // handle filters as conditions
-    $matches = true;
-
-    // $start = microtime(true);
-    // foreach($this->filters as $filter) {
-    //
-    //   if($filter['operator'] == '=') {
-    //     $matches = ($data[$filter['field']] ?? null) == $filter['value'];
-    //   } else if($filter['operator'] == '!=') {
-    //     $matches = ($data[$filter['field']] ?? null) != $filter['value'];
-    //   } else {
-    //     die("ERROR");
-    //   }
-    //
-    //   if(!$matches) {
-    //     break;
-    //   }
-    // }
-    // $end = microtime(true);
-    // self::$filterCalledCount += count($this->filters);
-    // self::$filterCalledDuration += ($end - $start);
-
-    foreach($this->filterFunctions as $filter) {
-
-      // $start = microtime(true);
-      $matches = $filter($data);
-      // $end = microtime(true);
-
-      // self::$filterCalledCount++;
-      // self::$filterCalledDuration += ($end-$start);
-
-      if(!$matches) {
-        return $matches;
-      }
-    }
-
-    return $matches;
-  }
-
-  /**
    * [getMapping description]
    * @return array [description]
    */
