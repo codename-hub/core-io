@@ -27,7 +27,8 @@ class pipeline implements \codename\core\io\transformerInterface
     }
 
     /**
-     * @param string $config_pipeline_file  [pipeline config / definition]
+     * @param string|null  $config_pipeline_file  [pipeline config / definition]
+     * @param array|null   $configData            [optional, explicit configuration]
      */
     public function __construct(string $config_pipeline_file = null, array $configData = null)
     {
@@ -1051,13 +1052,13 @@ class pipeline implements \codename\core\io\transformerInterface
     protected function rollbackTransactions() {
       foreach($this->activeConnections as $conn) {
         $conn->rollback();
-
-        if($conn->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'mysql') {
+        $driver = $conn->getAttribute(\PDO::ATTR_DRIVER_NAME);
+        if($driver == 'mysql') {
           // Autocommit re-enabling on MySQL
           $conn->exec('SET autocommit = 1;');
           // CHANGED: wasn't commented-in before...
           $conn->exec('SET foreign_key_checks = 1;');
-        } else if($conn->getAttribute(\PDO::ATTR_DRIVER_NAME) == 'sqlite') {
+        } else if($driver == 'sqlite') {
           // NOTE: For SQLite, we do not re-enable autocommit, as it is done per transaction
           // Re-enable FKEY checks
           $conn->exec('PRAGMA foreign_keys = ON;');
