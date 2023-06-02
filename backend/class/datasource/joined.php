@@ -1,295 +1,295 @@
 <?php
+
 namespace codename\core\io\datasource;
 
+use codename\core\config;
 use codename\core\exception;
+use codename\core\io\datasource;
 
 /**
- * A datasource that consists of two or more datasources
+ * A datasource that consists of two or more datasource's
  * to be joined upon defined keys.
  * Optionally, the adjacent datasource may be indexed based on key configuration
  */
-class joined extends \codename\core\io\datasource
+class joined extends datasource
 {
-  /**
-   * underyling datasources
-   * @var \codename\core\io\datasource[]
-   */
-  protected $datasources = [];
+    /**
+     * underlying datasource's
+     * @var datasource[]
+     */
+    protected array $datasources = [];
+    /**
+     * In-memory index
+     * @var array
+     */
+    protected array $indexes = [];
+    /**
+     * [protected description]
+     * @var string|int|null
+     */
+    protected string|int|null $mainDatasourceKey = null;
+    /**
+     * [protected description]
+     * @var null|config
+     */
+    protected ?config $config = null;
+    /**
+     * current array item itself
+     * @var bool|array
+     */
+    protected bool|array $current;
+    /**
+     * [protected description]
+     * @var int
+     */
+    protected int $currentJoinResultIndex = 0;
+    /**
+     * [protected description]
+     * @var null|int
+     */
+    protected ?int $currentJoinResultCount = null;
+    /**
+     * the current position
+     * @var int
+     */
+    protected int $index;
 
-  /**
-   * [__construct description]
-   * @param \codename\core\io\datasource[]   $datasources
-   * @param array             $config  [description]
-   */
-  public function __construct($datasources, array $config = array()) {
-    // make an array of files, if it's ONE file.
-    if(!is_array($datasources)) {
-      throw new exception('JOINED_DATASOURCE_NEEDS_MULTIPLE_INPUT_DATASOURCES', exception::$ERRORLEVEL_ERROR);
-    }
+    /**
+     * [__construct description]
+     * @param array $datasources
+     * @param array $config [description]
+     * @throws exception
+     */
+    public function __construct(array $datasources, array $config = [])
+    {
+        // make an array of files, if it's ONE file.
+        if (count($datasources) < 2) {
+            throw new exception('JOINED_DATASOURCE_NEEDS_MULTIPLE_INPUT_DATASOURCES', exception::$ERRORLEVEL_ERROR);
+        }
 
-    $this->setConfig($config);
+        $this->setConfig($config);
 
-    foreach($datasources as $key => $ds) {
-      // We require instances of datasources here
-      if(!($ds instanceof \codename\core\io\datasource)) {
-        throw new exception('INVALID_DATASOURCE_INSTANCE_GIVEN', exception::$ERRORLEVEL_ERROR);
-      }
-
-      // datasources may be keyed/named
-      $this->datasources[$key] = $ds;
-
-      // first entry represents the main datasource
-      if($this->mainDatasourceKey === null) {
-        $this->mainDatasourceKey = $key;
-      }
-    }
-
-    // handle join configs, if defined
-    if($this->config->get('join')) {
-      foreach($this->config->get('join') as $joinIndex => $join) {
-        if($join['index'] ?? false) {
-          // create index for this datasource
-          $ds = $this->datasources[$join['join_datasource']];
-          foreach($ds as $d) {
-            $indexHashValue = $d[$join['join_field']] ?? null;
-            if($indexHashValue) {
-              $this->indexes[$joinIndex][$indexHashValue][] = $d;
+        foreach ($datasources as $key => $ds) {
+            // We require instances of datasources here
+            if (!($ds instanceof datasource)) {
+                throw new exception('INVALID_DATASOURCE_INSTANCE_GIVEN', exception::$ERRORLEVEL_ERROR);
             }
-          }
-        }
-      }
-    }
-  }
 
-  /**
-   * In-memory index
-   * @var array
-   */
-  protected $indexes = [];
+            // datasources may be keyed/named
+            $this->datasources[$key] = $ds;
 
-  /**
-   * [protected description]
-   * @var string|int
-   */
-  protected $mainDatasourceKey = null;
-
-  /**
-   * [protected description]
-   * @var \codename\core\config
-   */
-  protected $config = null;
-
-  /**
-   * @inheritDoc
-   */
-  public function setConfig(array $config) {
-    $this->config = new \codename\core\config($config);
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function current()
-  {
-    return $this->current[$this->currentJoinResultIndex] ?? null;
-  }
-
-  /**
-   * current array item itself
-   * @var array
-   */
-  protected $current;
-
-  /**
-   * [protected description]
-   * @var int
-   */
-  protected $currentJoinResultIndex = 0;
-
-  /**
-   * [protected description]
-   * @var int
-   */
-  protected $currentJoinResultCount = null;
-
-  /**
-   * @inheritDoc
-   */
-  public function next()
-  {
-    if($this->currentJoinResultCount !== null) {
-      $this->currentJoinResultIndex++;
-    }
-
-
-    if(($this->currentJoinResultCount !== null) && ($this->currentJoinResultIndex < $this->currentJoinResultCount)) {
-      $this->index++;
-      return;
-    }
-    $this->datasources[$this->mainDatasourceKey]->next();
-
-    if($this->datasources[$this->mainDatasourceKey]->valid()) {
-      $this->handleCurrent();
-    } else {
-      $this->current = false;
-    }
-  }
-
-  /**
-   * handles data of the current entry
-   */
-  protected function handleCurrent(): void {
-    $current = [ $this->datasources[$this->mainDatasourceKey]->current() ];
-
-    // Perform joins based on the main datasource first
-    $handleDatasources = [ $this->mainDatasourceKey ];
-
-    $dsAvailable = true;
-    $offset = count($handleDatasources) - 1;
-
-    while($dsAvailable) {
-      $dsAvailable = false;
-
-      $dses = [];
-
-      foreach($handleDatasources as $idx => $dsIdentifier) {
-
-        // skip already handled datasources
-        if($idx < $offset) {
-          continue;
+            // first entry represents the main datasource
+            if ($this->mainDatasourceKey === null) {
+                $this->mainDatasourceKey = $key;
+            }
         }
 
-        $offset++;
+        // handle join configs, if defined
+        if ($this->config->get('join')) {
+            foreach ($this->config->get('join') as $joinIndex => $join) {
+                if ($join['index'] ?? false) {
+                    // create index for this datasource
+                    $ds = $this->datasources[$join['join_datasource']];
+                    foreach ($ds as $d) {
+                        $indexHashValue = $d[$join['join_field']] ?? null;
+                        if ($indexHashValue) {
+                            $this->indexes[$joinIndex][$indexHashValue][] = $d;
+                        }
+                    }
+                }
+            }
+        }
+    }
 
-        // new datasource identifiers that have become available by joining
-        $newDatasourceIdentifiers = $this->performJoins($dsIdentifier, $current);
+    /**
+     * {@inheritDoc}
+     */
+    public function setConfig(array $config): void
+    {
+        $this->config = new config($config);
+    }
 
-        if(count($newDatasourceIdentifiers) === 0) {
-          continue;
+    /**
+     * {@inheritDoc}
+     */
+    public function next(): void
+    {
+        if ($this->currentJoinResultCount !== null) {
+            $this->currentJoinResultIndex++;
+        }
+
+
+        if (($this->currentJoinResultCount !== null) && ($this->currentJoinResultIndex < $this->currentJoinResultCount)) {
+            $this->index++;
+            return;
+        }
+        $this->datasources[$this->mainDatasourceKey]->next();
+
+        if ($this->datasources[$this->mainDatasourceKey]->valid()) {
+            $this->handleCurrent();
         } else {
-          $dses = array_merge($dses, $newDatasourceIdentifiers);
+            $this->current = false;
         }
-      }
+    }
 
-      $diffDatasourceIdentifiers = array_diff($dses, $handleDatasources);
+    /**
+     * {@inheritDoc}
+     */
+    public function valid(): bool
+    {
+        return ($this->current !== false);
+    }
 
-      // new DSes have become available
-      if(count($diffDatasourceIdentifiers) > 0) {
-        $handleDatasources = array_merge($handleDatasources, $diffDatasourceIdentifiers);
+    /**
+     * handles data of the current entry
+     * @return void
+     */
+    protected function handleCurrent(): void
+    {
+        $current = [$this->datasources[$this->mainDatasourceKey]->current()];
+
+        // Perform joins based on the main datasource first
+        $handleDatasources = [$this->mainDatasourceKey];
+
         $dsAvailable = true;
-      }
-    }
+        $offset = count($handleDatasources) - 1;
 
-    $this->currentJoinResultCount = count($current);
-    $this->currentJoinResultIndex = 0;
-    $this->index++;
-    $this->current = $current;
-  }
+        while ($dsAvailable) {
+            $dsAvailable = false;
 
-  /**
-   * internally joins the various datasources
-   * @param  string|int   $baseDatasourceIdentifier
-   * @param  array        &$current
-   * @return array        an array of handled datasource identifiers
-   */
-  protected function performJoins($baseDatasourceIdentifier, array &$current): array {
-    $handledDatasources = [];
-    $joinedResult = [];
-    foreach($this->config->get('join') as $joinIndex => $join) {
-      if($join['base_datasource'] == $baseDatasourceIdentifier) {
+            $dses = [];
 
-        $baseField = $join['base_field'];
-        $joinField = $join['join_field'];
+            foreach ($handleDatasources as $idx => $dsIdentifier) {
+                // skip already handled datasources
+                if ($idx < $offset) {
+                    continue;
+                }
 
-        foreach($current as $c) {
-          if(($c[$baseField] ?? null) === null) {
-            continue;
-          }
+                $offset++;
 
-          if($join['index'] ?? false) {
-            // indexed key/column
-            $indexValues = $this->indexes[$joinIndex][$c[$baseField]] ?? null;
-            if($indexValues) {
-              foreach($indexValues as $d) {
-                $joinedResult[] = array_merge($c, $d);
-                // NOTE: dataset multiplication due to join ambiguity possible right here.
-              }
+                // new datasource identifiers that have become available by joining
+                $newDatasourceIdentifiers = $this->performJoins($dsIdentifier, $current);
+
+                if (count($newDatasourceIdentifiers) === 0) {
+                    continue;
+                } else {
+                    $dses = array_merge($dses, $newDatasourceIdentifiers);
+                }
             }
-          } else {
-            // only joins based on the main datasource key
-            $ds = $this->datasources[$join['join_datasource']];
 
-            // Unindexed variant
-            foreach($ds as $d) {
-              // TODO NULL handling
-              if($d[$joinField] == $c[$baseField]) {
-                $joinedResult[] = array_merge($c, $d);
-                // NOTE: dataset multiplication due to join ambiguity possible right here.
-              }
+            $diffDatasourceIdentifiers = array_diff($dses, $handleDatasources);
+
+            // new DSes have become available
+            if (count($diffDatasourceIdentifiers) > 0) {
+                $handleDatasources = array_merge($handleDatasources, $diffDatasourceIdentifiers);
+                $dsAvailable = true;
             }
-          }
         }
 
-        // we might have had no join matches
-        // therefore, pass original datasets
-        if(count($joinedResult) > 0) {
-          $current = $joinedResult;
-          $joinedResult = [];
-        }
-
-        $handledDatasources[] = $join['join_datasource'];
-      }
+        $this->currentJoinResultCount = count($current);
+        $this->currentJoinResultIndex = 0;
+        $this->index++;
+        $this->current = $current;
     }
-    return $handledDatasources;
-  }
 
-  /**
-   * the current position
-   * @var int
-   */
-  protected $index;
+    /**
+     * {@inheritDoc}
+     */
+    public function current(): mixed
+    {
+        return $this->current[$this->currentJoinResultIndex] ?? null;
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function key()
-  {
-    return $this->index;
-  }
+    /**
+     * internally joins the various datasources
+     * @param int|string $baseDatasourceIdentifier
+     * @param array        &$current
+     * @return array        an array of handled datasource identifiers
+     */
+    protected function performJoins(int|string $baseDatasourceIdentifier, array &$current): array
+    {
+        $handledDatasources = [];
+        $joinedResult = [];
+        foreach ($this->config->get('join') as $joinIndex => $join) {
+            if ($join['base_datasource'] == $baseDatasourceIdentifier) {
+                $baseField = $join['base_field'];
+                $joinField = $join['join_field'];
 
-  /**
-   * @inheritDoc
-   */
-  public function valid()
-  {
-    return ($this->current !== FALSE);
-  }
+                foreach ($current as $c) {
+                    if (($c[$baseField] ?? null) === null) {
+                        continue;
+                    }
 
-  /**
-   * @inheritDoc
-   */
-  public function rewind()
-  {
-    $this->datasources[$this->mainDatasourceKey]->rewind();
-    $this->index = 0;
-    $this->currentJoinResultIndex = 0;
-    $this->currentJoinResultCount = null;
-    $this->handleCurrent();
-  }
+                    if ($join['index'] ?? false) {
+                        // indexed key/column
+                        $indexValues = $this->indexes[$joinIndex][$c[$baseField]] ?? null;
+                        if ($indexValues) {
+                            foreach ($indexValues as $d) {
+                                $joinedResult[] = array_merge($c, $d);
+                                // NOTE: dataset multiplication due to join ambiguity possible right here.
+                            }
+                        }
+                    } else {
+                        // only joins based on the main datasource key
+                        $ds = $this->datasources[$join['join_datasource']];
 
-  /**
-   * @inheritDoc
-   */
-  public function currentProgressPosition(): int
-  {
-    return $this->index;
-  }
+                        // Un-Indexed variant
+                        foreach ($ds as $d) {
+                            // TODO NULL handling
+                            if ($d[$joinField] == $c[$baseField]) {
+                                $joinedResult[] = array_merge($c, $d);
+                                // NOTE: dataset multiplication due to join ambiguity possible right here.
+                            }
+                        }
+                    }
+                }
 
-  /**
-   * @inheritDoc
-   */
-  public function currentProgressLimit(): int
-  {
-    return 0; // Cannot be estimated
-  }
+                // we might have had no join matches
+                // therefore, pass original datasets
+                if (count($joinedResult) > 0) {
+                    $current = $joinedResult;
+                    $joinedResult = [];
+                }
+
+                $handledDatasources[] = $join['join_datasource'];
+            }
+        }
+        return $handledDatasources;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function key(): mixed
+    {
+        return $this->index;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function rewind(): void
+    {
+        $this->datasources[$this->mainDatasourceKey]->rewind();
+        $this->index = 0;
+        $this->currentJoinResultIndex = 0;
+        $this->currentJoinResultCount = null;
+        $this->handleCurrent();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function currentProgressPosition(): int
+    {
+        return $this->index;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function currentProgressLimit(): int
+    {
+        return 0; // Cannot be estimated
+    }
 }

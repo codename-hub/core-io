@@ -1,71 +1,71 @@
 <?php
+
 namespace codename\core\io\export;
 
+use codename\core\datacontainer;
 use codename\core\value\text\fileabsolute;
 
 /**
  * converts html to pdf
  * including CSS Stylesheets and other stuff.
  */
-abstract class pdf {
+abstract class pdf
+{
+    /**
+     * default configuration values
+     * @var array
+     */
+    protected static array $defaults = [
+      'default_font' => 'Helvetica',
+      'page_size' => 'A4',
+      'page_orientation' => 'portrait',
+    ];
+    /**
+     * [protected description]
+     * @var datacontainer
+     */
+    protected datacontainer $config;
 
-  /**
-   * [protected description]
-   * @var \codename\core\datacontainer
-   */
-  protected $config = null;
+    /**
+     * [__construct description]
+     * @param array $config [description]
+     */
+    public function __construct(array $config = [])
+    {
+        $this->config = new datacontainer($config);
 
-  /**
-   * default configuration values
-   * @var array
-   */
-  protected static $defaults = [
-    'default_font'      => 'Helvetica',
-    'pape_size'         => 'A4',
-    'page_orientation'  => 'portrait'
-  ];
+        // set defaults
+        foreach (self::$defaults as $key => $value) {
+            if (!$this->config->isDefined($key)) {
+                $this->config->setData($key, $value);
+            }
+        }
 
-  /**
-   * [__construct description]
-   * @param array $config [description]
-   */
-  public function __construct(array $config = array())
-  {
-    $this->config = new \codename\core\datacontainer($config);
+        // @TODO: check configuration!
 
-    // set defaults
-    foreach(self::$defaults as $key => $value) {
-      if(!$this->config->isDefined($key)) {
-        $this->config->setData($key, $value);
-      }
+        // init!
+        $this->initClient();
     }
 
-    // @TODO: check configuration!
+    /**
+     * main initialization routine
+     */
+    abstract protected function initClient();
 
-    // init!
-    $this->initClient();
-  }
+    /**
+     * sets the input data (html)
+     * @param string $html
+     */
+    abstract public function setHtml(string $html);
 
-  /**
-   * main initialization routine
-   */
-  protected abstract function initClient();
+    /**
+     * renders/executes the rendering process
+     */
+    abstract public function render();
 
-  /**
-   * sets the input data (html)
-   * @param string $html
-   */
-  public abstract function setHtml(string $html);
-
-  /**
-   * renders/executes the rendering process
-   */
-  public abstract function render();
-
-  /**
-   * gets the absolute file path to the rendered file (output)
-   * @return fileabsolute
-   */
-  public abstract function getFilepath() : fileabsolute;
-
+    /**
+     * gets the absolute file path to the rendered file (output)
+     * @return fileabsolute
+     */
+    abstract public function getFilepath(): fileabsolute;
 }

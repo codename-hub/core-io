@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <example>
-	<data>
-		<field1>example11</field1>
-		<field2>example12</field2>
-		<field3>example13</field3>
-	</data>
-	<data>
-		<field1>example21</field1>
-		<field2>example22</field2>
-		<field3>example23</field3>
-	</data>
-	<data>
-		<field1>example31</field1>
-		<field2>example32</field2>
-		<field3>example33</field3>
-	</data>
+  <data>
+    <field1>example11</field1>
+    <field2>example12</field2>
+    <field3>example13</field3>
+  </data>
+  <data>
+    <field1>example21</field1>
+    <field2>example22</field2>
+    <field3>example23</field3>
+  </data>
+  <data>
+    <field1>example31</field1>
+    <field2>example32</field2>
+    <field3>example33</field3>
+  </data>
 </example>
