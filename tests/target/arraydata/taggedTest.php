@@ -1,81 +1,100 @@
 <?php
+
 namespace codename\core\io\tests\target\arraydata;
 
-class taggedTest extends \PHPUnit\Framework\TestCase
+use codename\core\io\target\arraydata\tagged;
+use codename\core\value\structure;
+use Exception;
+use PHPUnit\Framework\TestCase;
+use ReflectionException;
+
+class taggedTest extends TestCase
 {
+    /**
+     * [testWithTags description]
+     * @throws ReflectionException
+     * @throws \codename\core\exception
+     */
+    public function testWithTags(): void
+    {
+        $target = new tagged('general_example', []);
 
-  /**
-   * [testWithTags description]
-   */
-  public function testWithTags(): void {
+        // set data
+        $result = $target->store([
+          'example' => 'data',
+        ], [
+          'example' => true,
+        ]);
+        static::assertTrue($result);
 
-    $target = new \codename\core\io\target\arraydata\tagged('general_example', []);
+        // get data
+        $result = $target->getVirtualStoreData();
+        static::assertEquals([
+          ['example' => 'data'],
+        ], $result);
 
-    // set data
-    $result = $target->store([
-      'example' => 'data'
-    ],[
-      'example' => true,
-    ]);
-    $this->assertTrue($result);
+        // check finish
+        try {
+            $target->finish();
+        } catch (Exception) {
+            static::fail();
+        }
 
-    // get data
-    $result = $target->getVirtualStoreData();
-    $this->assertEquals([
-      [ 'example' => 'data' ]
-    ], $result);
+        // getStructureResultArray
+        $result = $target->getStructureResultArray();
 
-    // check finish
-    $this->assertEmpty($target->finish());
+        static::assertCount(1, $result);
+        static::assertInstanceOf(\codename\core\io\value\structure\tagged::class, $result[0]);
+        static::assertEquals([
+          'example' => 'data',
+        ], $result[0]->get() ?? []);
 
-    // getStructureResultArray
-    $result = $target->getStructureResultArray();
+        if (!($result[0] instanceof \codename\core\io\value\structure\tagged)) {
+            static::fail('setup fail');
+        }
 
-    $this->assertCount(1, $result);
-    $this->assertInstanceOf(\codename\core\io\value\structure\tagged::class, $result[0]);
-    $this->assertEquals([
-      'example' => 'data'
-    ], $result[0]->get() ?? []);
+        static::assertEquals([
+          [
+            'example' => true,
+          ],
+        ], $result[0]->getTags());
+    }
 
-    $this->assertEquals([
-      [
-        'example' => true,
-      ]
-    ], $result[0]->getTags());
+    /**
+     * [testWithoutTags description]
+     * @throws ReflectionException
+     * @throws \codename\core\exception
+     */
+    public function testWithoutTags(): void
+    {
+        $target = new tagged('general_example', []);
 
-  }
+        // set data
+        $result = $target->store([
+          'example' => 'data',
+        ]);
+        static::assertTrue($result);
 
-  /**
-   * [testWithoutTags description]
-   */
-  public function testWithoutTags(): void {
+        // get data
+        $result = $target->getVirtualStoreData();
+        static::assertEquals([
+          ['example' => 'data'],
+        ], $result);
 
-    $target = new \codename\core\io\target\arraydata\tagged('general_example', []);
+        // check finish
+        try {
+            $target->finish();
+        } catch (Exception) {
+            static::fail();
+        }
 
-    // set data
-    $result = $target->store([
-      'example' => 'data'
-    ]);
-    $this->assertTrue($result);
+        // getStructureResultArray
+        $result = $target->getStructureResultArray();
 
-    // get data
-    $result = $target->getVirtualStoreData();
-    $this->assertEquals([
-      [ 'example' => 'data' ]
-    ], $result);
-
-    // check finish
-    $this->assertEmpty($target->finish());
-
-    // getStructureResultArray
-    $result = $target->getStructureResultArray();
-
-    $this->assertCount(1, $result);
-    $this->assertInstanceOf(\codename\core\value\structure::class, $result[0]);
-    $this->assertEquals([
-      'example' => 'data'
-    ], $result[0]->get() ?? []);
-
-  }
-
+        static::assertCount(1, $result);
+        static::assertInstanceOf(structure::class, $result[0]);
+        static::assertEquals([
+          'example' => 'data',
+        ], $result[0]->get() ?? []);
+    }
 }

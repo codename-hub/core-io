@@ -1,20 +1,27 @@
 <?php
+
 namespace codename\core\io\transform\trim;
 
-class right extends \codename\core\io\transform\trim
-{
-  /**
-   * @inheritDoc
-   */
-  public function internalTransform($value)
-  {
-    $v = $this->getValue($this->config['source'], $this->config['field'], $value);
-    // TODO: handle errors / required state
+use codename\core\exception;
+use codename\core\io\transform\trim;
 
-    if($this->characterMask === null) {
-      return rtrim($v);
-    } else {
-      return rtrim($v, $this->characterMask);
+class right extends trim
+{
+    /**
+     * {@inheritDoc}
+     * @param mixed $value
+     * @return mixed
+     * @throws exception
+     */
+    public function internalTransform(mixed $value): mixed
+    {
+        $v = $this->getValue($this->config['source'], $this->config['field'], $value);
+        // TODO: handle errors / required state
+
+        if ($this->characterMask === null) {
+            return rtrim($v);
+        } else {
+            return rtrim($v, $this->characterMask);
+        }
     }
-  }
 }

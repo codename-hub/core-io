@@ -1,59 +1,74 @@
 <?php
+
 namespace codename\core\io\tests\target;
+
+use codename\core\exception;
+use codename\core\io\target\dummy;
+use PHPUnit\Framework\TestCase;
 
 /**
  * [dummyTest description]
  */
-class dummyTest extends \PHPUnit\Framework\TestCase
+class dummyTest extends TestCase
 {
+    /**
+     * [testDummyGeneral description]
+     * @throws exception
+     */
+    public function testDummyGeneral(): void
+    {
+        $target = new dummy('general_example', []);
 
-  /**
-   * [testDummyGeneral description]
-   */
-  public function testDummyGeneral(): void {
+        // set data
+        $result = $target->store([
+          'example' => 'data',
+        ]);
+        static::assertTrue($result);
 
-    $target = new \codename\core\io\target\dummy('general_example', []);
+        // get data
+        $result = $target->getVirtualStoreData();
+        static::assertEquals([
+          ['example' => 'data'],
+        ], $result);
 
-    // set data
-    $result = $target->store([
-      'example' => 'data'
-    ]);
-    $this->assertTrue($result);
+        // check finish
+        try {
+            $target->finish();
+        } catch (\Exception) {
+            static::fail();
+        }
 
-    // get data
-    $result = $target->getVirtualStoreData();
-    $this->assertEquals([
-      [ 'example' => 'data' ]
-    ], $result);
+        // check set virtual store
+        try {
+            $target->setVirtualStoreEnabled(true);
+        } catch (\Exception) {
+            static::fail();
+        }
 
-    // check finish
-    $this->assertEmpty($target->finish());
+        // check virtual store state
+        static::assertTrue($target->getVirtualStoreEnabled());
+    }
 
-    // check set virtual store
-    $this->assertEmpty($target->setVirtualStoreEnabled(true));
+    /**
+     * [testDummyGeneral description]
+     */
+    public function testDummyFinishedError(): void
+    {
+        $this->expectException(exception::class);
+        $this->expectExceptionMessage('EXCEPTION_CORE_IO_TARGET_VIRTUAL_ALREADY_FINISHED');
 
-    // check virtual store state
-    $this->assertTrue($target->getVirtualStoreEnabled());
-    
-  }
+        $target = new dummy('finished_error', []);
 
-  /**
-   * [testDummyGeneral description]
-   */
-  public function testDummyFinishedError(): void {
-    $this->expectException(\codename\core\exception::class);
-    $this->expectExceptionMessage('EXCEPTION_CORE_IO_TARGET_VIRTUAL_ALREADY_FINISHED');
+        // set finish
+        try {
+            $target->finish();
+        } catch (\Exception) {
+            static::fail();
+        }
 
-    $target = new \codename\core\io\target\dummy('finished_error', []);
-
-    // set finish
-    $this->assertEmpty($target->finish());
-
-    // set data
-    $result = $target->store([
-      'example' => 'data'
-    ]);
-
-  }
-
+        // set data
+        $target->store([
+          'example' => 'data',
+        ]);
+    }
 }

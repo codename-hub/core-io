@@ -1,16 +1,26 @@
 <?php
+
 namespace codename\core\io\transform\pad;
+
+use codename\core\exception;
+use codename\core\io\transform\pad;
+
+use function str_pad;
 
 /**
  * pad_right
  */
-class right extends \codename\core\io\transform\pad {
-  /**
-   * @inheritDoc
-   */
-  public function internalTransform($value)
-  {
-    $v = $this->getValue($this->config['source'] ?? 'source', $this->config['field'], $value);
-    return \str_pad($v, $this->config['length'], $this->config['string'], STR_PAD_RIGHT);
-  }
+class right extends pad
+{
+    /**
+     * {@inheritDoc}
+     * @param mixed $value
+     * @return mixed
+     * @throws exception
+     */
+    public function internalTransform(mixed $value): mixed
+    {
+        $v = $this->getValue($this->config['source'] ?? 'source', $this->config['field'], $value);
+        return str_pad($v, $this->config['length'], $this->config['string']);
+    }
 }

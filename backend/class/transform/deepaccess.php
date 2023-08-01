@@ -1,63 +1,71 @@
 <?php
+
 namespace codename\core\io\transform;
+
+use codename\core\exception;
+use codename\core\io\transform;
+use LogicException;
 
 /**
  * getter for deep-accessing array elements
  */
-class deepaccess extends \codename\core\io\transform
+class deepaccess extends transform
 {
-  /**
-   * accessor/structure dive
-   * [ key, subkey, subsubkey, finalkey ]
-   * @var array
-   */
-  protected $path = null;
+    /**
+     * accessor/structure dive
+     * [ key, subkey, subsubkey, finalkey ]
+     * @var null|array
+     */
+    protected ?array $path = null;
 
-  /**
-   * @inheritDoc
-   */
-  public function __construct(array $config)
-  {
-    parent::__construct($config);
+    /**
+     * {@inheritDoc}
+     */
+    public function __construct(array $config)
+    {
+        parent::__construct($config);
 
-    if(is_array($config['path'])) {
-      $this->path = $config['path'];
-    } else {
-      $this->path = explode('.', $config['path']);
-    }
-  }
+        $config['path'] = $config['path'] ?? '';
 
-  /**
-   * @inheritDoc
-   */
-  public function internalTransform($value)
-  {
-    $v = null;
-
-    // Fallback to 'source' if none provided
-    if(($this->config['source'] ?? 'source') == 'source' && !isset($this->config['field'])) {
-      $v = $value;
-    } else {
-      $v = $this->getValue($this->config['source'] ?? 'source', $this->config['field'], $value);
+        if (is_array($config['path'])) {
+            $this->path = $config['path'];
+        } else {
+            $this->path = explode('.', $config['path']);
+        }
     }
 
-    $dive = \codename\core\io\helper\deepaccess::get($v, $this->path);
+    /**
+     * {@inheritDoc}
+     * @param mixed $value
+     * @return mixed
+     * @throws exception
+     */
+    public function internalTransform(mixed $value): mixed
+    {
+        // Fallback to 'source' if none provided
+        if (($this->config['source'] ?? 'source') == 'source' && !isset($this->config['field'])) {
+            $v = $value;
+        } else {
+            $v = $this->getValue($this->config['source'] ?? 'source', $this->config['field'], $value);
+        }
 
-    if($dive === null && ($this->config['required'] ?? false)) {
-      $this->errorstack->addError('VALUE_NULL', 0, [
-        'config' => $this->config,
-        'value' => $value
-      ]);
+        $dive = \codename\core\helper\deepaccess::get($v, $this->path);
+
+        if ($dive === null && ($this->config['required'] ?? false)) {
+            $this->errorstack->addError('VALUE_NULL', 0, [
+              'config' => $this->config,
+              'value' => $value,
+            ]);
+        }
+
+        return $dive;
     }
 
-    return $dive;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  public function getSpecification() : array
-  {
-    throw new \LogicException('Not implemented'); // TODO
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public function getSpecification(): array
+    {
+        throw new LogicException('Not implemented'); // TODO
+    }
 }
