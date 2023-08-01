@@ -1,24 +1,27 @@
 <?php
+
 namespace codename\core\io\transform\model\map\single;
 
-class onetime extends \codename\core\io\transform\model\map\single
-{
-  /**
-   * override resetCache
-   * to prevent cache reset
-   * and keep the cached value
-   * until destroyed
-   *
-   * @inheritDoc
-   */
-  public function resetCache()
-  {
-  }
+use codename\core\io\transform\model\map\single;
 
-  /**
-   * @inheritDoc
-   */
-  public function resetErrors()
-  {
-  }
+class onetime extends single
+{
+    /**
+     * override resetCache
+     * to prevent cache reset
+     * and keep the cached value
+     * until destroyed
+     *
+     * {@inheritDoc}
+     */
+    public function resetCache(): void
+    {
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public function resetErrors(): void
+    {
+    }
 }

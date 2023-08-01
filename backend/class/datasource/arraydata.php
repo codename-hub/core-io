@@ -1,88 +1,95 @@
 <?php
+
 namespace codename\core\io\datasource;
+
+use codename\core\io\datasource;
 
 /**
  * [arraydata description]
  */
-class arraydata extends \codename\core\io\datasource {
+class arraydata extends datasource
+{
+    /**
+     * @var array
+     */
+    protected array $data;
 
-  /**
-   * [setData description]
-   * @param array $data [description]
-   */
-  public function setData(array $data) {
-    $this->data = $data;
-    $this->elementCount = count($this->data);
-  }
+    /**
+     * [protected description]
+     * @var int
+     */
+    protected int $elementCount;
 
-  /**
-   * [protected description]
-   * @var int
-   */
-  protected $elementCount = null;
+    /**
+     * [setData description]
+     * @param array $data [description]
+     */
+    public function setData(array $data): void
+    {
+        $this->data = $data;
+        $this->elementCount = count($this->data);
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function setConfig(array $config)
-  {
-    return;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public function setConfig(array $config): void
+    {
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function current()
-  {
-    return current($this->data);
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public function next(): void
+    {
+        next($this->data);
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function next()
-  {
-    return next($this->data);
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public function valid(): bool
+    {
+        return $this->current() !== false;
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function key()
-  {
-    return key($this->data);
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public function current(): mixed
+    {
+        return current($this->data);
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function valid()
-  {
-    return $this->current() !== false;
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public function rewind(): void
+    {
+        reset($this->data);
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function rewind()
-  {
-    reset($this->data);
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public function currentProgressPosition(): int
+    {
+        return $this->key();
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function currentProgressPosition() : int
-  {
-    return $this->key();
-  }
+    /**
+     * {@inheritDoc}
+     */
+    public function key(): mixed
+    {
+        return key($this->data);
+    }
 
-  /**
-   * @inheritDoc
-   */
-  public function currentProgressLimit() : int
-  {
-    return $this->elementCount;
-  }
-
+    /**
+     * {@inheritDoc}
+     */
+    public function currentProgressLimit(): int
+    {
+        return $this->elementCount;
+    }
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace codename\core\io\target;
 
 /**
@@ -6,21 +7,21 @@ namespace codename\core\io\target;
  */
 interface virtualTargetInterface
 {
-  /**
-   * returns the data stored internally
-   * @return array [description]
-   */
-  function getVirtualStoreData() : array;
+    /**
+     * returns the data stored internally
+     * @return array [description]
+     */
+    public function getVirtualStoreData(): array;
 
-  /**
-   * enables or disables storing data virtually
-   * @param bool $state [description]
-   */
-  function setVirtualStoreEnabled(bool $state);
+    /**
+     * enables or disables storing data virtually
+     * @param bool $state [description]
+     */
+    public function setVirtualStoreEnabled(bool $state);
 
-  /**
-   * returns the current virtual store state
-   * @return bool [description]
-   */
-  function getVirtualStoreEnabled() : bool;
+    /**
+     * returns the current virtual store state
+     * @return bool [description]
+     */
+    public function getVirtualStoreEnabled(): bool;
 }

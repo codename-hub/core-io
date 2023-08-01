@@ -1,56 +1,67 @@
 <?php
+
 namespace codename\core\io\target\arraydata;
 
 use codename\core\exception;
+use codename\core\io\target\arraydata;
+use codename\core\io\target\structureResultArrayInterface;
+use codename\core\io\targetStoreTagInterface;
+use codename\core\value\structure;
+use ReflectionException;
 
 /**
  * tagged array data as target
  */
-class tagged extends \codename\core\io\target\arraydata
-  implements \codename\core\io\targetStoreTagInterface, \codename\core\io\target\structureResultArrayInterface {
-
+class tagged extends arraydata implements targetStoreTagInterface, structureResultArrayInterface
+{
     /**
      * buffered entries
-     * @var \codename\core\value\structure[]
+     * @var structure[]
      */
-    protected $resultObjects = [];
+    protected array $resultObjects = [];
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
+     * @param array $data
+     * @param array|null $tags
+     * @return bool
+     * @throws ReflectionException
+     * @throws exception
      */
-    public function store(array $data, ?array $tags = null) : bool
+    public function store(array $data, ?array $tags = null): bool
     {
-      if($this->finished ?? false) {
-        throw new exception('EXCEPTION_CORE_IO_TARGET_BUFFERED_ALREADY_FINISHED', exception::$ERRORLEVEL_ERROR);
-      }
+        if ($this->finished ?? false) {
+            throw new exception('EXCEPTION_CORE_IO_TARGET_BUFFERED_ALREADY_FINISHED', exception::$ERRORLEVEL_ERROR);
+        }
 
-      if($tags) {
-        $tagsChunk = [ $tags ];
-        $this->resultObjects[] = new \codename\core\io\value\structure\tagged($data, $tagsChunk);
-      } else {
-        $this->resultObjects[] = new \codename\core\value\structure($data);
-      }
+        if ($tags) {
+            $tagsChunk = [$tags];
+            $this->resultObjects[] = new \codename\core\io\value\structure\tagged($data, $tagsChunk);
+        } else {
+            $this->resultObjects[] = new structure($data);
+        }
 
-      return true;
+        return true;
     }
 
     /**
      * returns data stored virtually in this instance
      * @return array [description]
      */
-    public function getVirtualStoreData() : array {
-      $result = [];
-      foreach($this->resultObjects as $obj) {
-        $result[] = $obj->get();
-      }
-      return $result;
+    public function getVirtualStoreData(): array
+    {
+        $result = [];
+        foreach ($this->resultObjects as $obj) {
+            $result[] = $obj->get();
+        }
+        return $result;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getStructureResultArray(): array
     {
-      return $this->resultObjects;
+        return $this->resultObjects;
     }
 }

@@ -1,8 +1,12 @@
-<?php namespace codename\core\io\transform;
+<?php
+
+namespace codename\core\io\transform;
+
+use codename\core\io\transform;
 
 /**
  * converter base class
  */
-abstract class convert extends \codename\core\io\transform {
-
+abstract class convert extends transform
+{
 }

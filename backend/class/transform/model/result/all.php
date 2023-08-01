@@ -1,25 +1,33 @@
 <?php
+
 namespace codename\core\io\transform\model\result;
+
+use codename\core\exception;
+use codename\core\io\transform\model\result;
+use ReflectionException;
 
 /**
  * [all description]
  */
-class all extends \codename\core\io\transform\model\result {
+class all extends result
+{
+    /**
+     * {@inheritDoc}
+     * @param mixed $value
+     * @return mixed
+     * @throws ReflectionException
+     * @throws exception
+     */
+    public function internalTransform(mixed $value): mixed
+    {
+        $this->model->saveLastQuery = true;
+        $result = $this->doQuery($value);
 
-  /**
-   * @inheritDoc
-   */
-  public function internalTransform($value)
-  {
-    $this->model->saveLastQuery = true;
-    $result = $this->doQuery($value);
+        $this->debugInfo = [
+          'query' => $this->model->getLastQuery(),
+          'result' => $result,
+        ];
 
-    $this->debugInfo = [
-      'query' => $this->model->getLastQuery(),
-      'result' => $result
-    ];
-
-    return $result;
-  }
-
+        return $result;
+    }
 }

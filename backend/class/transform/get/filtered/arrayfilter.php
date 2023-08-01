@@ -1,59 +1,64 @@
 <?php
+
 namespace codename\core\io\transform\get\filtered;
 
-use \codename\core\io\helper\deepaccess;
+use codename\core\exception;
+use codename\core\helper\deepaccess;
+use codename\core\io\transform\get\filtered;
 
 /**
  * getter for a filtered array
  */
-class arrayfilter extends \codename\core\io\transform\get\filtered {
+class arrayfilter extends filtered
+{
+    /**
+     * {@inheritDoc}
+     * @param mixed $value
+     * @return mixed
+     * @throws exception
+     */
+    public function internalTransform(mixed $value): mixed
+    {
+        $v = $this->getValue($this->config['source'], $this->config['field'], $value);
+        $path = $this->config['path'] ?? null;
 
-  /**
-   * @inheritDoc
-   */
-  public function internalTransform($value)
-  {
-    $v = $this->getValue($this->config['source'], $this->config['field'], $value);
-    $path = $this->config['path'] ?? null;
+        $filtered = array_filter($v, function ($element) use ($path, $value) {
+            // we may retrieve an element's sub-key, if path is defined
+            $elementValue = $path ? deepaccess::get($element, $path) : $element;
 
-    $filtered = array_filter($v, function($element) use ($path, $value) {
+            $res = true;
+            // apply filter
+            foreach ($this->config['filter'] as $filter) {
+                $filterValue = is_array($filter['value']) ? $this->getValue($filter['value']['source'], $filter['value']['field'], $value) : $filter['value'];
+                switch ($filter['operator']) {
+                    case '=':
+                        $res &= ($filterValue == $elementValue);
+                        break;
+                    case '!=':
+                        $res &= ($filterValue != $elementValue);
+                        break;
+                    default:
+                        // TODO: Error - undefined/wrong spec?
+                        break;
+                }
+                if (!$res) {
+                    break;
+                }
+            }
 
-      // we may retrieve an element's sub-key, if path is defined
-      $elementValue = $path ? deepaccess::get($element, $path) : $element;
+            return $res;
+        });
 
-      $res = true;
-      // apply filter
-      foreach($this->config['filter'] as $filter) {
-        $filterValue = is_array($filter['value']) ? $this->getValue($filter['value']['source'], $filter['value']['field'], $value) : $filter['value'];
-        switch ($filter['operator']) {
-          case '=':
-            $res &= ($filterValue == $elementValue);
-            break;
-          case '!=':
-            $res &= ($filterValue != $elementValue);
-            break;
-          default:
-            // TODO: Error - undefined/wrong spec?
-            break;
+        // Allow [] => null conversion
+        if ($this->config['null_if_empty'] ?? false) {
+            if (count($filtered) === 0) {
+                return null;
+            }
         }
-        if(!$res) {
-          break;
+        // return only the array values
+        if ($this->config['force_array'] ?? false) {
+            return array_values($filtered);
         }
-      }
-
-      return $res;
-    });
-
-    // Allow [] => null conversion
-    if($this->config['null_if_empty'] ?? false) {
-      if(count($filtered) === 0) {
-        return null;
-      }
+        return $filtered;
     }
-    // return only the array values
-    if($this->config['force_array'] ?? false) {
-      return array_values($filtered);
-    }
-    return $filtered;
-  }
 }

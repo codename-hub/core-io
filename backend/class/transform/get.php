@@ -1,9 +1,12 @@
-<?php namespace codename\core\io\transform;
+<?php
+
+namespace codename\core\io\transform;
+
+use codename\core\io\transform;
 
 /**
  * getter base
  */
-abstract class get extends \codename\core\io\transform
+abstract class get extends transform
 {
-
 }
